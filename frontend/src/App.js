@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SnowBackground from './SnowBackground';
 import Welcome from './Welcome';
 import Survey from './Survey';
@@ -19,11 +19,6 @@ function App() {
     'Gemini가 올바른 분류를 찾는 중...',
     'Gemini가 이미지 생성 중...'
   ];
-
-  // 페이지 전환 시 스크롤을 맨 위로 이동
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [showSurvey, result, isLoading, error]);
 
   const handleSurveyComplete = async (answers) => {
     setIsLoading(true);

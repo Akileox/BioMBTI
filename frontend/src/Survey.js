@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import SnowBackground from './SnowBackground';
 import GeminiBadge from './GeminiBadge';
 import PromoSection from './PromoSection';
@@ -10,17 +10,6 @@ function Survey({ onComplete }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const surveyContainerRef = useRef(null);
-  
-  // 컴포넌트 마운트 시 스크롤을 맨 위로 이동
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  // 질문이 변경될 때마다 스크롤을 맨 위로 이동
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [currentQuestionIndex]);
 
   useEffect(() => {
     // 질문 데이터 로드
@@ -57,7 +46,7 @@ function Survey({ onComplete }) {
 
   if (isLoading) {
     return (
-      <div className="survey-container" ref={surveyContainerRef}>
+      <div className="survey-container">
         <div className="loading">질문을 불러오는 중...</div>
       </div>
     );
@@ -65,7 +54,7 @@ function Survey({ onComplete }) {
 
   if (questions.length === 0) {
     return (
-      <div className="survey-container" ref={surveyContainerRef}>
+      <div className="survey-container">
         <div className="error">질문을 불러올 수 없습니다.</div>
       </div>
     );
@@ -75,7 +64,7 @@ function Survey({ onComplete }) {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="survey-container" ref={surveyContainerRef}>
+    <div className="survey-container">
       <SnowBackground />
       <div className="survey-main">
         <div className="survey-header">
