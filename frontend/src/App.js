@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SnowBackground from './SnowBackground';
 import Welcome from './Welcome';
 import Survey from './Survey';
@@ -12,6 +12,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState(null);
+
+  // 페이지 전환 시 스크롤을 맨 위로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [showSurvey, result, isLoading, error]);
 
   const handleSurveyComplete = async (answers) => {
     setIsLoading(true);
@@ -64,6 +69,7 @@ function App() {
       
       setLoadingProgress(100);
       setTimeout(() => {
+        setIsLoading(false);
         setResult(data);
       }, 300);
     } catch (err) {

@@ -11,6 +11,17 @@ function Survey({ onComplete }) {
   const [answers, setAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const surveyContainerRef = useRef(null);
+  
+  // 컴포넌트 마운트 시 스크롤을 맨 위로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // 질문이 변경될 때마다 스크롤을 맨 위로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentQuestionIndex]);
+
   useEffect(() => {
     // 질문 데이터 로드
     fetch('/data/questions.json')
