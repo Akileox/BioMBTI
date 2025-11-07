@@ -16,7 +16,15 @@ function Survey({ onComplete }) {
     fetch('/data/questions.json')
       .then(res => res.json())
       .then(data => {
-        setQuestions(data);
+        // Fisher-Yates shuffle 알고리즘으로 랜덤 섞기
+        const shuffled = [...data];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        // 12개만 선택 (질문이 12개 미만이면 모두 사용)
+        const selectedQuestions = shuffled.slice(0, Math.min(12, shuffled.length));
+        setQuestions(selectedQuestions);
         setIsLoading(false);
 
       })
