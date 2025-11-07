@@ -1,0 +1,10 @@
+{
+  "name": "biombti",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --handle-input --kill-others-on-fail --kill-others --prefix-colors \"bgBlue.bold,bgMagenta.bold\" --prefix \"[{name}]\" --names \"SERVER,FRONTEND\" \"npm --prefix server run dev\" \"npm --prefix frontend start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
