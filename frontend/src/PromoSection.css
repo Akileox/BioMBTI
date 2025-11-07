@@ -4,6 +4,7 @@
   margin: 0 auto;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 .promo-section-header {
@@ -101,7 +102,13 @@
 
 @media (max-width: 768px) {
   .promo-section {
-    padding: 3rem 1rem;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
   }
 
   .promo-section-header h2 {

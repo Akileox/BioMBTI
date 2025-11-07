@@ -12,6 +12,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState(null);
+  const [floatingMessage, setFloatingMessage] = useState(0);
+
+  const loadingMessages = [
+    'Gemini가 답변을 분석하는 중...',
+    'Gemini가 올바른 분류를 찾는 중...',
+    'Gemini가 이미지 생성 중...'
+  ];
 
   // 페이지 전환 시 스크롤을 맨 위로 이동
   useEffect(() => {
@@ -34,8 +41,14 @@ function App() {
       });
     }, 200);
 
+    // 플로팅 메시지 애니메이션
+    const messageInterval = setInterval(() => {
+      setFloatingMessage(prev => (prev + 1) % loadingMessages.length);
+    }, 2000);
+
     try {
-      const apiCall = fetch('/api/get-result', {
+      const apiUrl = `${process.env.REACT_APP_API_URL || ''}/api/get-result`;
+      const apiCall = fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,12 +81,16 @@ function App() {
       }
       
       setLoadingProgress(100);
+      clearInterval(progressInterval);
+      clearInterval(messageInterval);
+      // 프로그레스 바가 다 채워지고 3초 기다린 후 결과창으로 이동
       setTimeout(() => {
         setIsLoading(false);
         setResult(data);
-      }, 300);
+      }, 3000);
     } catch (err) {
       clearInterval(progressInterval);
+      clearInterval(messageInterval);
       console.error('API 호출 실패:', err);
       // 네트워크 오류인 경우 더 친절한 메시지
       const errorMessage = err.message.includes('Failed to fetch') || err.message.includes('NetworkError')
@@ -83,6 +100,7 @@ function App() {
       setIsLoading(false);
     } finally {
       clearInterval(progressInterval);
+      clearInterval(messageInterval);
     }
   };
 
@@ -101,18 +119,36 @@ function App() {
       <div className="loading-screen">
         <SnowBackground />
         <div className="loading-content">
-          <div className="loading-emoji">🔬✨</div>
-          <div className="loading-spinner"></div>
-          <h2>분석 중입니다</h2>
-          <p>Gemini AI가 당신의 답변을 분석하여<br />맞춤형 Bio-MBTI 결과를 생성하고 있습니다...</p>
+          <div className="loading-image-container">
+            <img 
+              src="/images/TeamGemini.png" 
+              alt="Gemini AI" 
+              className="loading-image"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          </div>
+          <div className="floating-message-container">
+            <p className="floating-message">{loadingMessages[floatingMessage]}</p>
+          </div>
           <div className="loading-progress-container">
-            <div className="loading-progress-bar">
+            <div className="loading-progress-bar-glass">
               <div 
-                className="loading-progress-fill" 
+                className="loading-progress-fill-glass" 
                 style={{ width: `${Math.min(loadingProgress, 100)}%` }}
               ></div>
+              {(() => {
+                const message = 'K-BioX AI BioX';
+                const totalChars = message.length;
+                const visibleChars = Math.floor((loadingProgress / 100) * totalChars);
+                return visibleChars > 0 ? (
+                  <span className="progress-message">
+                    {message.substring(0, visibleChars)}
+                  </span>
+                ) : null;
+              })()}
             </div>
-            <p className="loading-progress-text">{Math.round(Math.min(loadingProgress, 100))}%</p>
           </div>
         </div>
       </div>

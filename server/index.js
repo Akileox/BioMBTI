@@ -45,7 +45,29 @@ if (!USE_MOCK) {
   console.log(`  USE_MOCK value: ${process.env.USE_MOCK}`);
 }
 
-// 5. Define Routes
+// 5. Type Code to Title Mapping
+const typeTitleMap = {
+  'ICLR': "당신은 '혼자서도 척척 하프물범'형!",
+  'ICLG': "당신은 '혼자서도 척척 하프물범'형!",
+  'ICHR': "당신은 '혼자서도 척척 하프물범'형!",
+  'ICHG': "당신은 '혼자서도 척척 하프물범'형!",
+  'IACR': "당신은 '혼자서도 척척 하프물범'형!",
+  'IACG': "당신은 '혼자서도 척척 하프물범'형!",
+  'IAHR': "당신은 '혼자서도 척척 하프물범'형!",
+  'IAHG': "당신은 '혼자서도 척척 하프물범'형!",
+  'ECLR': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'ECLG': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'ECHR': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'ECHG': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'EACR': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'EACG': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'EAHR': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'EAHG': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  // 기본값
+  'default': "당신의 Bio-MBTI 결과"
+};
+
+// 6. Define Routes
 app.get('/', (req, res) => {
   res.send('Bio-MBTI backend server is running.');
 });
@@ -93,22 +115,37 @@ app.post('/api/get-result', async (req, res) => {
       throw new Error('GEMINI_API_KEY is not set in environment variables');
     }
 
-    const userAnswersString = JSON.stringify(answers.map(a => a.answerValue));
-    const prompt = `You are a Bio-MBTI analyst. You must analyze the user's answers based on 4 axes:
-1. E/I (Together vs. Alone)
-2. A/C (Active vs. Cautious)
-3. G/L (Global vs. Local)
-4. H/R (Heart-driven vs. Reason-driven)
+    // 질문과 답변을 함께 전달하여 더 정확한 분석
+    const answersWithQuestions = answers.map((a, index) => 
+      `Q${index + 1}: ${a.question} - Answer: ${a.answerValue}`
+    ).join('\n');
+    
+    const prompt = `You are a Bio-MBTI analyst specializing in environmental personality types based on Arctic wildlife. Analyze the user's answers and classify them into one of 16 Bio-MBTI types.
 
-User's 12 answers (values only): ${userAnswersString}
+**Classification Axes:**
+1. E (Together) / I (Alone) - Social preference
+2. A (Active) / C (Cautious) - Action style
+3. G (Global) / L (Local) - Perspective scope
+4. H (Heart-driven) / R (Reason-driven) - Decision-making style
 
-Analyze the context of these answers and determine the user's final 4-letter type.
-Respond ONLY with a valid JSON object in the following format:
+**User's Answers:**
+${answersWithQuestions}
+
+**Instructions:**
+1. Analyze each answer to determine the user's preference on each of the 4 axes
+2. Count the answers for each axis (E vs I, A vs C, G vs L, H vs R)
+3. Determine the dominant type for each axis
+4. Combine them into a 4-letter type code (e.g., ICLR, EAGH, etc.)
+5. Create a creative description based on Arctic wildlife that matches this personality type
+
+**Response Format (JSON only):**
 {
-  "typeCode": "YOUR_4_LETTER_CODE",
-  "title": "Your Character Title (e.g., 'The Proactive Polar Bear')",
-  "description": "Your generated character description based on the type."
-}`;
+  "typeCode": "4_LETTER_CODE",
+  "description": "Detailed personality description in Korean, explaining the type characteristics with Arctic wildlife metaphor. Make it engaging and creative, around 2-3 sentences."
+}
+
+Important: Do NOT include "title" field. Only return typeCode and description.
+Respond ONLY with valid JSON, no additional text.`;
 
     const generationConfig = { 
       responseMimeType: "application/json",
@@ -127,7 +164,19 @@ Respond ONLY with a valid JSON object in the following format:
     const response = await result.response;
     const analysisResultText = response.text();
     const analysisResult = JSON.parse(analysisResultText);
-    return res.json(analysisResult);
+    
+    // 서버에서 미리 정의된 제목 매핑
+    const typeCode = analysisResult.typeCode || 'default';
+    const title = typeTitleMap[typeCode] || typeTitleMap['default'];
+    
+    // typeCode와 description은 Gemini에서 받은 것을 사용, title은 서버에서 매핑
+    const finalResult = {
+      typeCode: analysisResult.typeCode,
+      title: title,
+      description: analysisResult.description
+    };
+    
+    return res.json(finalResult);
     // --- [Real API Call End] ---
 
   } catch (error) {
