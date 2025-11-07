@@ -5,7 +5,7 @@ function GeminiBadge() {
   return (
     <div className="gemini-badge-container">
       <div className="gemini-badge">
-        <div className="gemini-badge-icon">✨</div>
+        <div className="gemini-badge-icon">⭐</div>
         <div className="gemini-badge-content">
           <p className="gemini-badge-text">
             이 서비스는 <strong>Google Gemini AI</strong>를 활용하여 만들어졌습니다.

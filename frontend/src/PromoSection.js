@@ -5,7 +5,7 @@ import './PromoSection.css';
 const promoData = [
   {
     id: 1,
-    icon: '🔬',
+    icon: '🤖',
     title: 'K-BioX',
     subtitle: '환경 보호와 생물 다양성 연구',
     description: 'K-BioX는 북극 생물과 환경 보호에 대한 연구와 교육을 통해 지구의 미래를 함께 만들어갑니다.',
@@ -14,7 +14,7 @@ const promoData = [
   },
   {
     id: 2,
-    icon: '❄️',
+    icon: '🌨️',
     title: '북극 생물 보호 프로젝트',
     subtitle: '크리스마스 씰과 함께하는 캠페인',
     description: '북극 생물들의 서식지 보호를 위한 연구와 캠페인에 참여해보세요. 작은 실천이 큰 변화를 만듭니다.',
@@ -23,7 +23,7 @@ const promoData = [
   },
   {
     id: 3,
-    icon: '🌍',
+    icon: '🌊',
     title: '환경 교육 프로그램',
     subtitle: '미래 세대를 위한 교육',
     description: '아이들과 청소년들을 위한 환경 교육 프로그램을 운영하고 있습니다. 함께 배우고 실천해요!',
@@ -32,7 +32,7 @@ const promoData = [
   },
   {
     id: 4,
-    icon: '🔬',
+    icon: '🤖',
     title: '연구 참여하기',
     subtitle: '시민 과학자와 함께',
     description: '일반인도 참여할 수 있는 시민 과학 프로젝트에 참여하여 환경 보호 연구에 기여해보세요.',

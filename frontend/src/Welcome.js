@@ -8,7 +8,7 @@ function Welcome({ onStart }) {
     <div className="welcome-container">
       <SnowBackground />
       <div className="welcome-content">
-        <div className="welcome-icon">🐾</div>
+        <div className="welcome-icon">🦭</div>
         <h1 className="welcome-title">Bio-MBTI 테스트</h1>
         <p className="welcome-subtitle">
           당신의 환경 성향을 알아보는<br />
@@ -23,15 +23,15 @@ function Welcome({ onStart }) {
         </button>
         <div className="welcome-features">
           <div className="welcome-feature">
-            <span className="feature-icon">❄️</span>
+            <span className="feature-icon">🌨️</span>
             <span>크리스마스 씰 테마</span>
           </div>
           <div className="welcome-feature">
-            <span className="feature-icon">🔬</span>
+            <span className="feature-icon">🤖</span>
             <span>Gemini AI 분석</span>
           </div>
           <div className="welcome-feature">
-            <span className="feature-icon">🌍</span>
+            <span className="feature-icon">🌊</span>
             <span>환경 보호 성향</span>
           </div>
         </div>

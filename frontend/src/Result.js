@@ -21,15 +21,18 @@ function Result({ result, onRestart }) {
   }
 
   const typeInfo = typeData[result.typeCode] || typeData.default;
-  const keywords = typeInfo.keywords.length > 0 
-    ? typeInfo.keywords 
-    : [`#${result.typeCode}`];
+  // Gemini에서 받은 keywords를 우선 사용, 없으면 기본값 사용
+  const keywords = result.keywords && result.keywords.length > 0
+    ? result.keywords
+    : (typeInfo.keywords.length > 0 
+        ? typeInfo.keywords 
+        : [`#${result.typeCode}`]);
 
   return (
     <div className="result-container">
       <div className="result-card">
         <div className="result-header">
-          <h1>🐾 당신의 Bio-MBTI 결과</h1>
+                      <h1>🦭 당신의 Bio-MBTI 결과: {result.typeCode}</h1>
         </div>
 
         <div className="result-type">
@@ -48,7 +51,7 @@ function Result({ result, onRestart }) {
               {result.typeCode}
             </div>
           </div>
-          <h2 className="type-title">{result.title}</h2>
+          <h2 className="type-title">{result.title || `당신의 Bio-MBTI 결과: ${result.typeCode}`}</h2>
           <div className="type-keywords">
             {keywords.map((keyword, index) => (
               <span key={index} className="keyword-tag">{keyword}</span>

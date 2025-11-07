@@ -14,7 +14,7 @@ function Footer() {
         </div>
         <div className="footer-section">
           <p className="footer-text">
-            Made with ❄️ for a better future
+            Made with 🌨️ for a better future
           </p>
         </div>
         <div className="footer-section">

@@ -6,7 +6,7 @@ const carouselItems = [
     id: 1,
     title: 'K-BioX 연구 활동',
     description: '북극 생물과 환경 보호 연구',
-    image: '🔬', // 이모티콘 또는 이미지 URL
+    image: '🤖', // 이모티콘 또는 이미지 URL
     imageUrl: null, // 이미지 URL이 있으면 이모티콘 대신 표시
     color: '#4a90e2'
   },
@@ -14,7 +14,7 @@ const carouselItems = [
     id: 2,
     title: '크리스마스 씰 캠페인',
     description: '북극 생물 보호를 위한 특별 캠페인',
-    image: '❄️',
+    image: '🌨️',
     imageUrl: null, // 예: '/images/christmas-seal.jpg'
     color: '#87ceeb'
   },
@@ -22,7 +22,7 @@ const carouselItems = [
     id: 3,
     title: '환경 교육 프로그램',
     description: '미래 세대를 위한 환경 교육',
-    image: '🌍',
+    image: '🌊',
     imageUrl: null, // 예: '/images/education.jpg'
     color: '#98d8c8'
   }

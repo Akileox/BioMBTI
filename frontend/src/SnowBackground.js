@@ -9,11 +9,18 @@ function SnowBackground() {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
     
-    canvas.width = width;
-    canvas.height = height;
+    const updateCanvasSize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      // canvas의 실제 픽셀 크기 설정
+      canvas.width = width;
+      canvas.height = height;
+    };
+    
+    updateCanvasSize();
 
     const snowflakes = [];
     const snowflakeCount = 100;
@@ -32,15 +39,19 @@ function SnowBackground() {
         this.y += this.speed;
         this.x += this.wind;
         
-        if (this.y > height) {
+        // 동적으로 width와 height를 참조 (CSS 크기 기준)
+        const currentWidth = width || window.innerWidth;
+        const currentHeight = height || window.innerHeight;
+        
+        if (this.y > currentHeight) {
           this.y = -10;
-          this.x = Math.random() * width;
+          this.x = Math.random() * currentWidth;
         }
         
-        if (this.x > width) {
+        if (this.x > currentWidth) {
           this.x = 0;
         } else if (this.x < 0) {
-          this.x = width;
+          this.x = currentWidth;
         }
       }
 
@@ -52,12 +63,21 @@ function SnowBackground() {
       }
     }
 
+    // 눈을 전체 화면에 고르게 분포
     for (let i = 0; i < snowflakeCount; i++) {
-      snowflakes.push(new Snowflake());
+      const snowflake = new Snowflake();
+      // 화면 전체에 고르게 분포
+      snowflake.x = (i / snowflakeCount) * width;
+      snowflake.y = Math.random() * height;
+      snowflakes.push(snowflake);
     }
 
     function animate() {
-      ctx.clearRect(0, 0, width, height);
+      // 동적으로 canvas 크기를 참조
+      const currentWidth = width || window.innerWidth;
+      const currentHeight = height || window.innerHeight;
+      
+      ctx.clearRect(0, 0, currentWidth, currentHeight);
       snowflakes.forEach(snowflake => {
         snowflake.update();
         snowflake.draw();
@@ -68,8 +88,16 @@ function SnowBackground() {
     animate();
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const oldWidth = width;
+      const oldHeight = height;
+      updateCanvasSize();
+      // canvas 크기 변경 시 context 리셋 방지를 위해 다시 가져오기
+      const newCtx = canvas.getContext('2d');
+      // 화면 크기가 변경되면 눈 위치 재조정
+      snowflakes.forEach(snowflake => {
+        if (snowflake.x > width) snowflake.x = Math.random() * width;
+        if (snowflake.y > height) snowflake.y = Math.random() * height;
+      });
     };
 
     window.addEventListener('resize', handleResize);

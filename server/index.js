@@ -45,7 +45,7 @@ if (!USE_MOCK) {
   console.log(`  USE_MOCK value: ${process.env.USE_MOCK}`);
 }
 
-// 5. Type Code to Title Mapping
+// 5. Type Code to Title and Animal Mapping
 const typeTitleMap = {
   'ICLR': "당신은 '혼자서도 척척 하프물범'형!",
   'ICLG': "당신은 '혼자서도 척척 하프물범'형!",
@@ -65,6 +65,27 @@ const typeTitleMap = {
   'EAHG': "당신은 '함께하면 더 즐거운 북극곰'형!",
   // 기본값
   'default': "당신의 Bio-MBTI 결과"
+};
+
+// 타입 코드별 동물 매핑 (제목에서 추출)
+const typeAnimalMap = {
+  'ICLR': '하프물범',
+  'ICLG': '하프물범',
+  'ICHR': '하프물범',
+  'ICHG': '하프물범',
+  'IACR': '하프물범',
+  'IACG': '하프물범',
+  'IAHR': '하프물범',
+  'IAHG': '하프물범',
+  'ECLR': '북극곰',
+  'ECLG': '북극곰',
+  'ECHR': '북극곰',
+  'ECHG': '북극곰',
+  'EACR': '북극곰',
+  'EACG': '북극곰',
+  'EAHR': '북극곰',
+  'EAHG': '북극곰',
+  'default': '북극 동물'
 };
 
 // 6. Define Routes
@@ -95,7 +116,8 @@ app.post('/api/get-result', async (req, res) => {
       const mockResult = {
         typeCode: 'ICLR',
         title: "당신은 '혼자서도 척척 하프물범'형!",
-        description: "[임시 Mock 데이터] 태어난 지 12일만에 독립 생활을 시작하는 하프물범처럼 적응력이 높습니다. 귀여운 성격 덕분에 어디서든지 사랑받습니다."
+        description: "[임시 Mock 데이터] 태어난 지 12일만에 독립 생활을 시작하는 하프물범처럼 적응력이 높습니다. 귀여운 성격 덕분에 어디서든지 사랑받습니다.",
+        keywords: ['#ICLR', '#하프물범', '#높은 적응력', '#독립적']
       };
       await new Promise(resolve => setTimeout(resolve, 300));
       return res.json(mockResult);
@@ -120,6 +142,12 @@ app.post('/api/get-result', async (req, res) => {
       `Q${index + 1}: ${a.question} - Answer: ${a.answerValue}`
     ).join('\n');
     
+    // 타입 코드별 동물 매핑 정보를 프롬프트에 포함
+    const animalMappingInfo = Object.entries(typeAnimalMap)
+      .filter(([key]) => key !== 'default')
+      .map(([typeCode, animal]) => `- ${typeCode}: ${animal}`)
+      .join('\n');
+    
     const prompt = `You are a Bio-MBTI analyst specializing in environmental personality types based on Arctic wildlife. Analyze the user's answers and classify them into one of 16 Bio-MBTI types.
 
 **Classification Axes:**
@@ -131,20 +159,30 @@ app.post('/api/get-result', async (req, res) => {
 **User's Answers:**
 ${answersWithQuestions}
 
+**Type Code to Animal Mapping (MUST USE THE CORRECT ANIMAL):**
+${animalMappingInfo}
+
 **Instructions:**
 1. Analyze each answer to determine the user's preference on each of the 4 axes
 2. Count the answers for each axis (E vs I, A vs C, G vs L, H vs R)
 3. Determine the dominant type for each axis
 4. Combine them into a 4-letter type code (e.g., ICLR, EAGH, etc.)
-5. Create a creative description based on Arctic wildlife that matches this personality type
+5. Look up the animal for the determined type code from the mapping above
+6. Create a creative description in Korean using EXACTLY that animal. The description must feature the specific animal assigned to the type code, not any other animal.
 
 **Response Format (JSON only):**
 {
   "typeCode": "4_LETTER_CODE",
-  "description": "Detailed personality description in Korean, explaining the type characteristics with Arctic wildlife metaphor. Make it engaging and creative, around 2-3 sentences."
+  "description": "Detailed personality description in Korean, explaining the type characteristics using the EXACT animal from the mapping above. Make it engaging and creative, around 2-3 sentences. You MUST use the animal specified in the mapping for this type code.",
+  "keywords": ["#typeCode", "#animalName", "#keyword1", "#keyword2", "#keyword3"]
 }
 
-Important: Do NOT include "title" field. Only return typeCode and description.
+Important: 
+- Do NOT include "title" field. Only return typeCode, description, and keywords.
+- You MUST use the exact animal specified in the mapping for the type code you determine.
+- Do NOT use a different animal than what is specified in the mapping.
+- keywords array must include: the type code (with #), the animal name (with #), and 2-3 additional relevant keywords from the description (with #).
+- Keywords should be in Korean and relevant to the personality type described.
 Respond ONLY with valid JSON, no additional text.`;
 
     const generationConfig = { 
@@ -166,16 +204,24 @@ Respond ONLY with valid JSON, no additional text.`;
     const analysisResult = JSON.parse(analysisResultText);
     
     // 서버에서 미리 정의된 제목 매핑
-    const typeCode = analysisResult.typeCode || 'default';
+    // typeCode를 대문자로 변환하여 매칭 (Gemini가 소문자로 반환할 수 있음)
+    const typeCode = (analysisResult.typeCode || 'default').toUpperCase();
     const title = typeTitleMap[typeCode] || typeTitleMap['default'];
     
-    // typeCode와 description은 Gemini에서 받은 것을 사용, title은 서버에서 매핑
+    // 타입 코드가 매핑에 없는 경우 로깅
+    if (!typeTitleMap[typeCode]) {
+      console.warn(`Warning: Type code "${typeCode}" not found in typeTitleMap. Using default title.`);
+    }
+    
+    // typeCode, description, keywords는 Gemini에서 받은 것을 사용, title은 서버에서 매핑
     const finalResult = {
-      typeCode: analysisResult.typeCode,
+      typeCode: typeCode, // 대문자로 정규화된 typeCode 사용
       title: title,
-      description: analysisResult.description
+      description: analysisResult.description,
+      keywords: analysisResult.keywords || [`#${typeCode}`]
     };
     
+    console.log('Final result:', finalResult);
     return res.json(finalResult);
     // --- [Real API Call End] ---
 

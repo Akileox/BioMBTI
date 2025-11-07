@@ -79,7 +79,7 @@ function Survey({ onComplete }) {
       <SnowBackground />
       <div className="survey-main">
         <div className="survey-header">
-          <h1>🐾 Bio-MBTI 테스트</h1>
+          <h1>🦭 Bio-MBTI 테스트</h1>
           <p className="subtitle">당신의 환경 성향을 알아보는 12가지 질문</p>
         </div>
 
