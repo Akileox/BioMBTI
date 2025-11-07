@@ -54,6 +54,23 @@
   text-align: center;
   margin-bottom: 1rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80px;
+}
+
+.promo-card-logo {
+  max-width: 120px;
+  max-height: 80px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.promo-card-icon-fallback {
+  font-size: 3rem;
 }
 
 .promo-card-content {
@@ -130,6 +147,16 @@
   }
 
   .promo-card-icon {
+    font-size: 2.5rem;
+    min-height: 60px;
+  }
+
+  .promo-card-logo {
+    max-width: 100px;
+    max-height: 60px;
+  }
+
+  .promo-card-icon-fallback {
     font-size: 2.5rem;
   }
 

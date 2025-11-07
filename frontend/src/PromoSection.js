@@ -6,15 +6,17 @@ const promoData = [
   {
     id: 1,
     icon: '🤖',
+    image: '/images/logos/k-BioX_Logo.png', // 로고 이미지 경로
     title: 'K-BioX',
     subtitle: '환경 보호와 생물 다양성 연구',
-    description: 'K-BioX는 북극 생물과 환경 보호에 대한 연구와 교육을 통해 지구의 미래를 함께 만들어갑니다.',
-    link: 'https://kbiox.org',
+    description: 'K-BioX는 정기적인 온오프라인 SUMMIT 행사, 멘토링 프로그램, 기관 협력 프로그램, 학술 자료 공유 플랫폼 등을 통해 전세계를 향한 생명과학 지식 나눔을 지속해 나가고 있습니다. 홈페이지에서 더 자세히 알아보세요.',
+    link: 'https://kbiox.net/main/',
     linkText: 'K-BioX 홈페이지 방문하기'
   },
   {
     id: 2,
     icon: '🌨️',
+    image: '/images/logos/christmas-seal-logo.png', // 로고 이미지 경로
     title: '북극 생물 보호 프로젝트',
     subtitle: '크리스마스 씰과 함께하는 캠페인',
     description: '북극 생물들의 서식지 보호를 위한 연구와 캠페인에 참여해보세요. 작은 실천이 큰 변화를 만듭니다.',
@@ -24,6 +26,7 @@ const promoData = [
   {
     id: 3,
     icon: '🌊',
+    image: '/images/logos/education-logo.png', // 로고 이미지 경로
     title: '환경 교육 프로그램',
     subtitle: '미래 세대를 위한 교육',
     description: '아이들과 청소년들을 위한 환경 교육 프로그램을 운영하고 있습니다. 함께 배우고 실천해요!',
@@ -33,6 +36,7 @@ const promoData = [
   {
     id: 4,
     icon: '🤖',
+    image: '/images/logos/research-logo.png', // 로고 이미지 경로
     title: '연구 참여하기',
     subtitle: '시민 과학자와 함께',
     description: '일반인도 참여할 수 있는 시민 과학 프로젝트에 참여하여 환경 보호 연구에 기여해보세요.',
@@ -44,6 +48,7 @@ const promoData = [
 function PromoCard({ promo, index }) {
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -72,7 +77,18 @@ function PromoCard({ promo, index }) {
       className={`promo-card ${isVisible ? 'promo-card-visible' : ''}`}
       style={{ animationDelay: `${index * 0.2}s` }}
     >
-      <div className="promo-card-icon">{promo.icon}</div>
+      <div className="promo-card-icon">
+        {promo.image && !imageError ? (
+          <img 
+            src={promo.image} 
+            alt={promo.title}
+            className="promo-card-logo"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <span className="promo-card-icon-fallback">{promo.icon}</span>
+        )}
+      </div>
       <div className="promo-card-content">
         <h3 className="promo-card-title">{promo.title}</h3>
         <p className="promo-card-subtitle">{promo.subtitle}</p>
