@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 유효한 Bio-MBTI 타입 코드 검증 함수
+    function isValidTypeCode(typeCode) {
+      return typeCode.matches('^(ICLR|ICLG|ICHR|ICHG|IACR|IACG|IAHR|IAHG|ECLR|ECLG|ECHR|ECHG|EACR|EACG|EAHR|EAHG)$');
+    }
+    
+    // results 컬렉션 규칙
+    match /results/{resultId} {
+      // 읽기: 모든 사용자 허용 (통계 조회용)
+      allow read: if true;
+      
+      // 쓰기: 데이터 검증 포함
+      allow create: if 
+        // typeCode 필수 및 유효성 검증
+        request.resource.data.typeCode is string &&
+        request.resource.data.typeCode.size() == 4 &&
+        isValidTypeCode(request.resource.data.typeCode.toUpperCase()) &&
+        // createdAt 필수 (ISO 8601 형식 문자열)
+        request.resource.data.createdAt is string &&
+        request.resource.data.createdAt.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}') &&
+        // timestamp는 서버에서만 자동 설정되므로 클라이언트에서 설정 불가
+        !('timestamp' in request.resource.data) &&
+        // 추가 필드 제한 (필요한 필드만 허용)
+        request.resource.data.keys().hasOnly(['typeCode', 'createdAt']);
+      
+      // 업데이트 및 삭제는 허용하지 않음 (데이터 무결성 보장)
+      allow update, delete: if false;
+    }
+  }
+}
+

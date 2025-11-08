@@ -1,6 +1,8 @@
 // 1. Import required modules
 const express = require('express');
 const cors = require('cors');
+const admin = require('firebase-admin');
+const path = require('path');
 require('dotenv').config(); // Loads environment variables from .env file
 
 // USE_MOCK 설정 확인 (대소문자 무시, 'true' 문자열 체크)
@@ -23,6 +25,8 @@ const PORT = process.env.PORT || 3001; // Use port from env or default to 3001
 // 3. Middlewares
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // Enable JSON body parsing
+// IP 주소를 정확히 가져오기 위한 설정 (프록시 환경 고려)
+app.set('trust proxy', true);
 
 // 4. Initialize Gemini API (USE_MOCK이 false일 때만)
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-preview-09-2025";
@@ -43,6 +47,38 @@ if (!USE_MOCK) {
 } else {
   console.log('✓ Running in MOCK mode - Gemini API will not be used');
   console.log(`  USE_MOCK value: ${process.env.USE_MOCK}`);
+}
+
+// 4-1. Initialize Firebase Admin SDK
+let db = null;
+const FIREBASE_ENABLED = String(process.env.FIREBASE_ENABLED || 'false').toLowerCase().trim() === 'true';
+
+if (FIREBASE_ENABLED) {
+  try {
+    // Firebase 서비스 계정 키 파일 경로
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || 
+                               path.join(__dirname, 'firebase-service-account.json');
+    
+    // 서비스 계정 키 파일이 있는지 확인
+    const fs = require('fs');
+    if (fs.existsSync(serviceAccountPath)) {
+      const serviceAccount = require(serviceAccountPath);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+      db = admin.firestore();
+      console.log('✓ Firebase Admin SDK initialized successfully');
+    } else {
+      console.warn('⚠ Firebase service account file not found. Analytics features will be disabled.');
+      console.warn(`  Expected path: ${serviceAccountPath}`);
+      console.warn('  Please set FIREBASE_SERVICE_ACCOUNT_PATH in .env or place firebase-service-account.json in server/');
+    }
+  } catch (error) {
+    console.error('Failed to initialize Firebase Admin SDK:', error.message);
+    console.warn('Analytics features will be disabled.');
+  }
+} else {
+  console.log('✓ Firebase is disabled (FIREBASE_ENABLED=false). Analytics features will not be available.');
 }
 
 // 5. Type Code to Title and Animal Mapping
@@ -222,12 +258,170 @@ Respond ONLY with valid JSON, no additional text.`;
     };
     
     console.log('Final result:', finalResult);
+    
+    // 결과만 반환 (저장은 프론트엔드에서 /api/submit-result로 처리)
     return res.json(finalResult);
     // --- [Real API Call End] ---
 
   } catch (error) {
     console.error('Error processing Gemini request:', error);
     res.status(500).json({ error: 'Server error while analyzing results.' });
+  }
+});
+
+/**
+ * @route   POST /api/submit-result
+ * @desc    Save user result to database
+ * @access  Public
+ */
+app.post('/api/submit-result', async (req, res) => {
+  try {
+    const { typeCode } = req.body;
+
+    if (!typeCode || typeof typeCode !== 'string') {
+      return res.status(400).json({ error: 'typeCode is required.' });
+    }
+
+    if (!db) {
+      return res.status(503).json({ error: 'Database is not available. Please configure Firebase.' });
+    }
+
+    // IP 주소 해시화 (개인정보 보호)
+    const crypto = require('crypto');
+    // X-Forwarded-For 헤더 또는 req.ip 사용 (trust proxy 설정으로 정확한 IP 획득)
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
+                     req.ip || 
+                     req.connection.remoteAddress || 
+                     'unknown';
+    const hashedIp = crypto.createHash('sha256').update(clientIp).digest('hex').substring(0, 16);
+    const typeCodeUpper = typeCode.toUpperCase();
+
+    // 중복 저장 방지: 트랜잭션을 사용하여 원자적 연산 보장
+    // 같은 IP에서 같은 타입코드를 30초 이내에 저장한 경우 스킵
+    const now = new Date();
+    const thirtySecondsAgo = new Date(now.getTime() - 30000);
+    
+    try {
+      // 먼저 최근 저장 기록 확인 (더 넓은 범위로)
+      const recentResults = await db.collection('results')
+        .where('hashedIp', '==', hashedIp)
+        .where('typeCode', '==', typeCodeUpper)
+        .orderBy('timestamp', 'desc')
+        .limit(1)
+        .get();
+
+      if (!recentResults.empty) {
+        const recentDoc = recentResults.docs[0];
+        const recentData = recentDoc.data();
+        const recentTimestamp = recentData.timestamp?.toDate?.() || new Date(recentData.createdAt);
+        const timeDiff = now.getTime() - recentTimestamp.getTime();
+        
+        if (timeDiff < 30000) { // 30초 이내
+          console.log(`Duplicate submission detected (IP: ${hashedIp}, typeCode: ${typeCodeUpper}, ${Math.round(timeDiff/1000)}s ago), skipping...`);
+          return res.json({ success: true, skipped: true, message: 'Duplicate submission skipped' });
+        }
+      }
+    } catch (queryError) {
+      // 쿼리 오류가 발생하면 (인덱스가 없을 수 있음) 모든 데이터를 가져와서 확인
+      console.warn('Query error, trying alternative method:', queryError.message);
+      try {
+        const allRecent = await db.collection('results')
+          .where('hashedIp', '==', hashedIp)
+          .where('typeCode', '==', typeCodeUpper)
+          .get();
+        
+        if (!allRecent.empty) {
+          // 가장 최근 것만 확인
+          let mostRecent = null;
+          allRecent.forEach(doc => {
+            const data = doc.data();
+            const timestamp = data.timestamp?.toDate?.() || new Date(data.createdAt);
+            if (!mostRecent || timestamp > mostRecent.timestamp) {
+              mostRecent = { timestamp, data };
+            }
+          });
+          
+          if (mostRecent) {
+            const timeDiff = now.getTime() - mostRecent.timestamp.getTime();
+            if (timeDiff < 30000) {
+              console.log(`Duplicate submission detected (alternative method, ${Math.round(timeDiff/1000)}s ago), skipping...`);
+              return res.json({ success: true, skipped: true, message: 'Duplicate submission skipped' });
+            }
+          }
+        }
+      } catch (altError) {
+        console.warn('Alternative method also failed, proceeding with save:', altError.message);
+      }
+    }
+
+    // 결과를 DB에 저장
+    const docRef = await db.collection('results').add({
+      typeCode: typeCodeUpper,
+      hashedIp: hashedIp, // 중복 판단용 (개인정보 보호)
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: new Date().toISOString()
+    });
+
+    console.log('Result saved to Firestore:', docRef.id);
+    return res.json({ success: true, id: docRef.id });
+
+  } catch (error) {
+    console.error('Error saving result:', error);
+    res.status(500).json({ error: 'Server error while saving result.' });
+  }
+});
+
+/**
+ * @route   GET /api/get-stats
+ * @desc    Get statistics about all results
+ * @access  Public
+ */
+app.get('/api/get-stats', async (req, res) => {
+  try {
+    if (!db) {
+      // Firebase가 비활성화된 경우 Mock 데이터 반환
+      return res.json({
+        totalCount: 0,
+        typeCounts: {},
+        message: 'Database is not available. Please configure Firebase.'
+      });
+    }
+
+    // 전체 결과 조회
+    const resultsSnapshot = await db.collection('results').get();
+    
+    const totalCount = resultsSnapshot.size;
+    const typeCounts = {};
+    
+    // 타입별 개수 계산
+    resultsSnapshot.forEach(doc => {
+      const data = doc.data();
+      const typeCode = data.typeCode || 'UNKNOWN';
+      typeCounts[typeCode] = (typeCounts[typeCode] || 0) + 1;
+    });
+
+    // 16개 타입 모두 포함 (없으면 0)
+    const allTypes = [
+      'ICLR', 'ICLG', 'ICHR', 'ICHG',
+      'IACR', 'IACG', 'IAHR', 'IAHG',
+      'ECLR', 'ECLG', 'ECHR', 'ECHG',
+      'EACR', 'EACG', 'EAHR', 'EAHG'
+    ];
+    
+    allTypes.forEach(type => {
+      if (!typeCounts[type]) {
+        typeCounts[type] = 0;
+      }
+    });
+
+    return res.json({
+      totalCount,
+      typeCounts
+    });
+
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: 'Server error while fetching statistics.' });
   }
 });
 

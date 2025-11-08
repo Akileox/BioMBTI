@@ -88,11 +88,7 @@ function SnowBackground() {
     animate();
 
     const handleResize = () => {
-      const oldWidth = width;
-      const oldHeight = height;
       updateCanvasSize();
-      // canvas 크기 변경 시 context 리셋 방지를 위해 다시 가져오기
-      const newCtx = canvas.getContext('2d');
       // 화면 크기가 변경되면 눈 위치 재조정
       snowflakes.forEach(snowflake => {
         if (snowflake.x > width) snowflake.x = Math.random() * width;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SnowBackground from './SnowBackground';
 import Welcome from './Welcome';
 import Survey from './Survey';
@@ -13,6 +13,80 @@ function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState(null);
   const [floatingMessage, setFloatingMessage] = useState(0);
+
+  // 오픈그래프 메타태그 동적 업데이트 (카카오톡 공유용)
+  const updateOpenGraphMeta = (resultData) => {
+    // 타입별 이미지 경로 (Result.js의 typeData와 동일하게 유지)
+    const typeImageMap = {
+      'ICLR': '/images/types/ICLR.png',
+      'ICLG': '/images/types/ICLR.png',
+      'ICHR': '/images/types/ICLR.png',
+      'ICHG': '/images/types/ICLR.png',
+      'IACR': '/images/types/ICLR.png',
+      'IACG': '/images/types/ICLR.png',
+      'IAHR': '/images/types/ICLR.png',
+      'IAHG': '/images/types/ICLR.png',
+      'ECLR': '/images/types/ICLR.png',
+      'ECLG': '/images/types/ICLR.png',
+      'ECHR': '/images/types/ICLR.png',
+      'ECHG': '/images/types/ICLR.png',
+      'EACR': '/images/types/ICLR.png',
+      'EACG': '/images/types/ICLR.png',
+      'EAHR': '/images/types/ICLR.png',
+      'EAHG': '/images/types/ICLR.png',
+    };
+    
+    // 프로덕션 URL 우선 사용 (환경 변수로 설정 가능)
+    const siteUrl = process.env.REACT_APP_SITE_URL || window.location.origin;
+    const imagePath = typeImageMap[resultData.typeCode] || '/images/types/default.png';
+    const imageUrl = `${siteUrl}${imagePath}`;
+    const shareUrl = `${siteUrl}${window.location.pathname}?type=${resultData.typeCode}&share=true`;
+    const description = resultData.description ? resultData.description.substring(0, 200) : '나의 환경 보호 성향을 알아보는 Bio-MBTI 테스트';
+
+    // 기존 메타태그 제거
+    const existingOgTags = document.querySelectorAll('meta[property^="og:"]');
+    existingOgTags.forEach(tag => tag.remove());
+
+    // 새로운 오픈그래프 메타태그 추가
+    const ogTags = [
+      { property: 'og:title', content: resultData.title || `당신의 Bio-MBTI 결과: ${resultData.typeCode}` },
+      { property: 'og:description', content: description },
+      { property: 'og:image', content: imageUrl },
+      { property: 'og:url', content: shareUrl },
+      { property: 'og:type', content: 'website' },
+    ];
+
+    ogTags.forEach(tag => {
+      const meta = document.createElement('meta');
+      meta.setAttribute('property', tag.property);
+      meta.setAttribute('content', tag.content);
+      document.head.appendChild(meta);
+    });
+  };
+
+  // URL 파라미터에서 결과 로드 (공유 링크용)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const typeCode = urlParams.get('type');
+    const share = urlParams.get('share');
+    
+    if (typeCode && share === 'true') {
+      // 공유 링크로 접근한 경우, 결과를 표시하기 위해 API 호출
+      // typeCode만으로는 전체 결과를 알 수 없으므로, 간단한 결과 객체 생성
+      // 또는 서버에서 typeCode로 결과를 조회하는 API를 만들 수도 있음
+      // 지금은 기본 정보만 표시
+      const mockResult = {
+        typeCode: typeCode.toUpperCase(),
+        title: `당신의 Bio-MBTI 결과: ${typeCode.toUpperCase()}`,
+        description: '공유 링크로 접근하셨습니다. 정확한 결과를 보려면 테스트를 다시 진행해주세요!',
+        keywords: [`#${typeCode.toUpperCase()}`],
+        isShared: true // 공유 링크로 접근한 경우 플래그 추가
+      };
+      setResult(mockResult);
+      // 공유 링크로 접근한 경우에도 오픈그래프 메타태그 업데이트
+      updateOpenGraphMeta(mockResult);
+    }
+  }, []);
 
   const loadingMessages = [
     'Gemini가 답변을 분석하는 중...',
@@ -82,6 +156,12 @@ function App() {
       setTimeout(() => {
         setIsLoading(false);
         setResult(data);
+        // URL에 결과 파라미터 추가 (공유 링크용)
+        // 브라우저 URL은 현재 도메인 유지, 공유 링크는 프로덕션 URL 사용
+        const newUrl = `${window.location.origin}${window.location.pathname}?type=${data.typeCode}&share=true`;
+        window.history.pushState({}, '', newUrl);
+        // 동적 오픈그래프 메타태그 업데이트 (카카오톡 공유용)
+        updateOpenGraphMeta(data);
       }, 3000);
     } catch (err) {
       clearInterval(progressInterval);
@@ -103,6 +183,8 @@ function App() {
     setResult(null);
     setError(null);
     setShowSurvey(false);
+    // URL 파라미터 제거
+    window.history.pushState({}, '', window.location.pathname);
   };
 
   const handleStart = () => {

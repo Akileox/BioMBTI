@@ -3,3 +3,8 @@
 
 # Environment variables
 .env
+
+# Firebase 서비스 계정 키 (절대 공개하면 안 됨!)
+**/firebase-service-account.json
+**/*-firebase-adminsdk-*.json
+**/biombti-firebase-adminsdk-*.json

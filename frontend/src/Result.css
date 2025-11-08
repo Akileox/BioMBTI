@@ -169,6 +169,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+  flex: 0 1 auto;
 }
 
 .restart-button:hover {
@@ -179,6 +180,83 @@
 .restart-button:active {
   transform: translateY(0);
 }
+
+.button-section {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.share-button {
+  background: linear-gradient(135deg, #50c878 0%, #3da85a 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(80, 200, 120, 0.3);
+  flex: 0 1 auto;
+}
+
+.share-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(80, 200, 120, 0.4);
+}
+
+.share-button:active {
+  transform: translateY(0);
+}
+
+.kakao-share-button {
+  background: linear-gradient(135deg, #FEE500 0%, #FDD835 100%);
+  color: #3C1E1E;
+  border: none;
+  border-radius: 12px;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(254, 229, 0, 0.3);
+  flex: 0 1 auto;
+}
+
+.kakao-share-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(254, 229, 0, 0.4);
+}
+
+.kakao-share-button:active {
+  transform: translateY(0);
+}
+
+.stats-section {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.stats-text {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.stats-text strong {
+  color: #4a90e2;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
 
 @media (max-width: 768px) {
   .result-container {
@@ -214,6 +292,18 @@
 
   .result-description p {
     font-size: 1rem;
+  }
+
+  .button-section {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .share-button,
+  .kakao-share-button,
+  .restart-button {
+    width: 100%;
+    max-width: 300px;
   }
 }
 
