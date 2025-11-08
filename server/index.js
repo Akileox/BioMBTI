@@ -55,23 +55,55 @@ const FIREBASE_ENABLED = String(process.env.FIREBASE_ENABLED || 'false').toLower
 
 if (FIREBASE_ENABLED) {
   try {
-    // Firebase 서비스 계정 키 파일 경로
-    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || 
-                               path.join(__dirname, 'firebase-service-account.json');
+    let serviceAccount = null;
     
-    // 서비스 계정 키 파일이 있는지 확인
-    const fs = require('fs');
-    if (fs.existsSync(serviceAccountPath)) {
-      const serviceAccount = require(serviceAccountPath);
+    // 방법 1: 환경 변수에서 직접 JSON 문자열로 제공 (Render 등 클라우드 환경용)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      try {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        console.log('✓ Firebase service account loaded from FIREBASE_SERVICE_ACCOUNT_KEY environment variable');
+      } catch (parseError) {
+        console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:', parseError.message);
+        throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT_KEY format');
+      }
+    }
+    // 방법 2: Base64 인코딩된 환경 변수 (선택사항)
+    else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY_BASE64) {
+      try {
+        const decoded = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_BASE64, 'base64').toString('utf-8');
+        serviceAccount = JSON.parse(decoded);
+        console.log('✓ Firebase service account loaded from FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 environment variable');
+      } catch (decodeError) {
+        console.error('Failed to decode FIREBASE_SERVICE_ACCOUNT_KEY_BASE64:', decodeError.message);
+        throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 format');
+      }
+    }
+    // 방법 3: 파일 시스템에서 읽기 (로컬 개발용)
+    else {
+      const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || 
+                                 path.join(__dirname, 'firebase-service-account.json');
+      
+      const fs = require('fs');
+      if (fs.existsSync(serviceAccountPath)) {
+        serviceAccount = require(serviceAccountPath);
+        console.log('✓ Firebase service account loaded from file:', serviceAccountPath);
+      } else {
+        console.warn('⚠ Firebase service account not found. Analytics features will be disabled.');
+        console.warn(`  Expected path: ${serviceAccountPath}`);
+        console.warn('  Please set one of the following:');
+        console.warn('    - FIREBASE_SERVICE_ACCOUNT_KEY (JSON string)');
+        console.warn('    - FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 (base64 encoded JSON)');
+        console.warn('    - FIREBASE_SERVICE_ACCOUNT_PATH (file path)');
+        console.warn('    - Or place firebase-service-account.json in server/');
+      }
+    }
+    
+    if (serviceAccount) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
       });
       db = admin.firestore();
       console.log('✓ Firebase Admin SDK initialized successfully');
-    } else {
-      console.warn('⚠ Firebase service account file not found. Analytics features will be disabled.');
-      console.warn(`  Expected path: ${serviceAccountPath}`);
-      console.warn('  Please set FIREBASE_SERVICE_ACCOUNT_PATH in .env or place firebase-service-account.json in server/');
     }
   } catch (error) {
     console.error('Failed to initialize Firebase Admin SDK:', error.message);
