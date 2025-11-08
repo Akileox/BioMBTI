@@ -27,14 +27,26 @@ function Result({ result, onRestart }) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const apiUrl = `${process.env.REACT_APP_API_URL || ''}/api/get-stats`;
+        // API URL 구성: 환경 변수가 있으면 사용, 없으면 상대 경로 사용
+        const baseUrl = process.env.REACT_APP_API_URL || '';
+        const apiUrl = baseUrl ? `${baseUrl}/api/get-stats` : '/api/get-stats';
+        console.log('Fetching stats from:', apiUrl);
+        console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL || '(not set)');
+        
         const response = await fetch(apiUrl);
         if (response.ok) {
           const data = await response.json();
+          console.log('Stats data received:', data);
           setStats(data);
+        } else {
+          console.error('Failed to fetch stats:', response.status, response.statusText);
+          // 에러가 발생해도 기본값 설정 (통계 섹션은 표시되지만 0명으로 표시)
+          setStats({ totalCount: 0, typeCounts: {} });
         }
       } catch (error) {
         console.error('Failed to fetch stats:', error);
+        // 네트워크 에러 등이 발생해도 기본값 설정
+        setStats({ totalCount: 0, typeCounts: {} });
       } finally {
         setStatsLoading(false);
       }
@@ -79,7 +91,8 @@ function Result({ result, onRestart }) {
         const fetchStats = async () => {
           if (isCancelled) return;
           try {
-            const statsUrl = `${process.env.REACT_APP_API_URL || ''}/api/get-stats`;
+            const baseUrl = process.env.REACT_APP_API_URL || '';
+            const statsUrl = baseUrl ? `${baseUrl}/api/get-stats` : '/api/get-stats';
             const statsResponse = await fetch(statsUrl);
             if (statsResponse.ok && !isCancelled) {
               const statsData = await statsResponse.json();
@@ -128,7 +141,8 @@ function Result({ result, onRestart }) {
       savedRef.current.add(resultKey); // 메모리에도 즉시 추가
       
       try {
-        const apiUrl = `${process.env.REACT_APP_API_URL || ''}/api/submit-result`;
+        const baseUrl = process.env.REACT_APP_API_URL || '';
+        const apiUrl = baseUrl ? `${baseUrl}/api/submit-result` : '/api/submit-result';
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -153,7 +167,8 @@ function Result({ result, onRestart }) {
           }
           
           // 저장 후 통계 다시 로드
-          const statsUrl = `${process.env.REACT_APP_API_URL || ''}/api/get-stats`;
+          const baseUrl = process.env.REACT_APP_API_URL || '';
+          const statsUrl = baseUrl ? `${baseUrl}/api/get-stats` : '/api/get-stats';
           const statsResponse = await fetch(statsUrl);
           if (statsResponse.ok && !isCancelled) {
             const statsData = await statsResponse.json();
@@ -323,14 +338,16 @@ function Result({ result, onRestart }) {
           <p>{result.description}</p>
         </div>
 
-        {/* 통계 표시 */}
-        {stats && !statsLoading && stats.totalCount > 0 && (
-          <div className="stats-section">
+        {/* 통계 표시 - 항상 표시 */}
+        <div className="stats-section">
+          {statsLoading ? (
+            <p className="stats-text">통계를 불러오는 중...</p>
+          ) : (
             <p className="stats-text">
-              지금까지 <strong>{stats.totalCount.toLocaleString()}명</strong>이 참여했어요! 🎉
+              지금까지 <strong>{stats?.totalCount ? stats.totalCount.toLocaleString() : 0}명</strong>이 참여했어요! 🎉
             </p>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="button-section">
           <button 
