@@ -16,8 +16,14 @@ const typeData = {
 };
 
 
+// 크리스마스 씰 생성 프롬프트 (사용자가 제공할 프롬프트로 교체 필요)
+const CHRISTMAS_SEAL_PROMPT = `여기에 크리스마스 씰 생성 프롬프트가 들어갑니다.
+프롬프트 내용을 여기에 입력해주세요.`;
+
 function Result({ result, onRestart }) {
   const [copySuccess, setCopySuccess] = useState(false);
+  const [promptCopySuccess, setPromptCopySuccess] = useState(false);
+  const [showPromptModal, setShowPromptModal] = useState(false);
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [logoError, setLogoError] = useState(false);
@@ -244,6 +250,36 @@ function Result({ result, onRestart }) {
     }
   };
 
+  // 프롬프트 복사 기능
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(CHRISTMAS_SEAL_PROMPT);
+      setPromptCopySuccess(true);
+      setTimeout(() => setPromptCopySuccess(false), 2000);
+    } catch (err) {
+      // 클립보드 API가 지원되지 않는 경우 대체 방법
+      const textArea = document.createElement('textarea');
+      textArea.value = CHRISTMAS_SEAL_PROMPT;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setPromptCopySuccess(true);
+        setTimeout(() => setPromptCopySuccess(false), 2000);
+      } catch (err) {
+        alert('프롬프트 복사에 실패했습니다. 수동으로 복사해주세요.');
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // Gemini 앱 열기
+  const handleOpenGemini = () => {
+    window.open('https://gemini.google.com/', '_blank', 'noopener,noreferrer');
+  };
+
   // 카카오톡 공유 기능
   const handleKakaoShare = () => {
     // 카카오톡 SDK 초기화 확인
@@ -362,6 +398,17 @@ function Result({ result, onRestart }) {
           )}
         </div>
 
+        {/* 크리스마스 씰 생성 섹션 */}
+        <div className="seal-section">
+          <h3 className="seal-section-title">나만의 씰을 만들어보고 싶다면?</h3>
+          <button 
+            className="gemini-prompt-button" 
+            onClick={() => setShowPromptModal(true)}
+          >
+            ✨ Gemini Prompt 받으러가기
+          </button>
+        </div>
+
         <div className="button-section">
           <button 
             className="share-button" 
@@ -382,6 +429,39 @@ function Result({ result, onRestart }) {
           </button>
         </div>
       </div>
+
+      {/* 프롬프트 모달 */}
+      {showPromptModal && (
+        <div className="prompt-modal-overlay" onClick={() => setShowPromptModal(false)}>
+          <div className="prompt-modal" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="prompt-modal-close" 
+              onClick={() => setShowPromptModal(false)}
+              aria-label="닫기"
+            >
+              ×
+            </button>
+            <h3 className="prompt-modal-title">프롬프트를 복사하여 Gemini 앱에 붙여넣고 사용해보세요</h3>
+            <div className="prompt-code-block">
+              <pre><code>{CHRISTMAS_SEAL_PROMPT}</code></pre>
+            </div>
+            <div className="prompt-modal-buttons">
+              <button 
+                className="prompt-copy-button" 
+                onClick={handleCopyPrompt}
+              >
+                {promptCopySuccess ? '✓ 복사 완료!' : '📋 프롬프트 복사하기'}
+              </button>
+              <button 
+                className="prompt-gemini-button" 
+                onClick={handleOpenGemini}
+              >
+                ✨ Gemini로 이동하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
