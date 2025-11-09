@@ -24,7 +24,10 @@
 
 .promo-carousel-slide {
   min-width: 100%;
+  width: 100%;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .promo-carousel-content {
@@ -35,10 +38,13 @@
   justify-content: center;
   min-height: auto;
   background: rgba(255, 255, 255, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .promo-carousel-image {
-  max-width: 100%;
+  max-width: calc(100% - 2rem);
   max-height: 400px;
   width: auto;
   height: auto;
@@ -106,7 +112,7 @@
   }
 
   .promo-carousel-image {
-    max-width: 100%;
+    max-width: calc(100% - 1rem);
     max-height: 200px;
     width: auto;
     height: auto;
@@ -124,6 +130,7 @@
   }
 
   .promo-carousel-image {
+    max-width: calc(100% - 0.5rem);
     max-height: 150px;
   }
 }
