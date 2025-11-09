@@ -38,7 +38,7 @@ BioMBTI/
 ```env
 # Gemini API 설정
 USE_MOCK=false
-GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here  # ⚠️ 실제 API 키로 교체 필요
 
 # 서버 포트 (선택사항)
 PORT=3001
@@ -178,7 +178,7 @@ Vercel 대시보드 → 프로젝트 → Settings → Environment Variables:
 Render 대시보드 → 서비스 → Environment:
 
 - `USE_MOCK=false`
-- `GEMINI_API_KEY=your_api_key`
+- `GEMINI_API_KEY=your_api_key`  # ⚠️ 실제 API 키로 교체 필요
 - `PORT=3001` (선택사항)
 
 ## 📝 주요 기능

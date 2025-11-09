@@ -45,8 +45,23 @@
 .welcome-icon {
   font-size: 6rem;
   margin-bottom: 1.5rem;
-  animation: float 3s ease-in-out infinite;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-logo-image {
+  max-width: 200px;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.welcome-icon-fallback {
+  font-size: 6rem;
 }
 
 @keyframes float {
@@ -116,7 +131,20 @@
   gap: 2rem;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.welcome-feature-link {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.welcome-feature-link:hover {
+  transform: scale(1.1);
 }
 
 .welcome-feature {
@@ -127,10 +155,18 @@
   color: #2c3e50;
   font-size: 0.95rem;
   font-weight: 500;
+  cursor: pointer;
 }
 
 .feature-icon {
   font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.feature-logo-image {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
   margin-bottom: 0.25rem;
 }
 

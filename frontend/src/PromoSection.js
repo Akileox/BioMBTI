@@ -6,42 +6,32 @@ const promoData = [
   {
     id: 1,
     icon: '🤖',
-    image: '/images/logos/k-BioX_Logo.png', // 로고 이미지 경로
+    image: '/images/logos/K-BioX_Logo.png', // 로고 이미지 경로
     title: 'K-BioX',
     subtitle: '환경 보호와 생물 다양성 연구',
-    description: 'K-BioX는 정기적인 온오프라인 SUMMIT 행사, 멘토링 프로그램, 기관 협력 프로그램, 학술 자료 공유 플랫폼 등을 통해 전세계를 향한 생명과학 지식 나눔을 지속해 나가고 있습니다. 홈페이지에서 더 자세히 알아보세요.',
+    description: 'K-BioX는 정기적인 온오프라인 SUMMIT 행사, 멘토링 프로그램, 기관 협력 프로그램, 학술 자료 공유 플랫폼 등을 통해 전세계를 향한 생명과학 지식 나눔을 지속해 나가고 있습니다. 환경 보호와 생물 다양성 연구에 관심이 있으시다면 홈페이지에서 더 자세한 정보를 확인해보세요.',
     link: 'https://kbiox.net/main/',
     linkText: 'K-BioX 홈페이지 방문하기'
   },
   {
     id: 2,
-    icon: '🌨️',
-    image: '/images/logos/christmas-seal-logo.png', // 로고 이미지 경로
-    title: '북극 생물 보호 프로젝트',
-    subtitle: '크리스마스 씰과 함께하는 캠페인',
-    description: '북극 생물들의 서식지 보호를 위한 연구와 캠페인에 참여해보세요. 작은 실천이 큰 변화를 만듭니다.',
-    link: '#',
-    linkText: '프로젝트 자세히 보기'
+    icon: '🌟',
+    image: '/images/logos/instagram_logo.png', // 로고 이미지 경로
+    title: 'K-BioX TeamGemini',
+    subtitle: '인스타그램에서 만나보세요',
+    description: 'K-BioX TeamGemini의 최신 소식과 활동을 인스타그램에서 확인하실 수 있습니다. 다양한 연구 활동, 이벤트 정보, 그리고 환경 보호 관련 콘텐츠를 만나보세요. 함께 지구의 미래를 만들어가는 여정에 참여해보세요!',
+    link: 'https://www.instagram.com/kbiox_teamgemini/',
+    linkText: '인스타그램 방문하기'
   },
   {
     id: 3,
-    icon: '🌊',
-    image: '/images/logos/education-logo.png', // 로고 이미지 경로
-    title: '환경 교육 프로그램',
-    subtitle: '미래 세대를 위한 교육',
-    description: '아이들과 청소년들을 위한 환경 교육 프로그램을 운영하고 있습니다. 함께 배우고 실천해요!',
-    link: '#',
-    linkText: '교육 프로그램 알아보기'
-  },
-  {
-    id: 4,
-    icon: '🤖',
-    image: '/images/logos/research-logo.png', // 로고 이미지 경로
-    title: '연구 참여하기',
-    subtitle: '시민 과학자와 함께',
-    description: '일반인도 참여할 수 있는 시민 과학 프로젝트에 참여하여 환경 보호 연구에 기여해보세요.',
-    link: '#',
-    linkText: '연구 참여 신청하기'
+    icon: '✨',
+    image: '/images/logos/gemini_logo.png', // 로고 이미지 경로
+    title: 'Google Gemini',
+    subtitle: 'AI와 함께하는 미래',
+    description: '이 서비스는 Google Gemini AI를 활용하여 만들어졌습니다. 사용자의 답변을 분석하여 맞춤형 Bio-MBTI 결과를 제공합니다. 최첨단 AI 기술로 당신의 환경 보호 성향을 정확하게 파악하고, 의미 있는 결과를 제공합니다.',
+    link: 'https://gemini.google.com/',
+    linkText: 'Gemini 알아보기'
   }
 ];
 
@@ -114,8 +104,8 @@ function PromoSection() {
     <div className="promo-section">
       <PromoCarousel />
       <div className="promo-section-header">
-        <h2>🌊 함께 만들어가는 지구의 미래</h2>
-        <p>K-BioX와 함께하는 다양한 활동을 소개합니다</p>
+        <h2>함께 만들어가는 지구의 미래</h2>
+        <p>K-BioX AI BioX와 함께하는 다양한 활동을 소개합니다</p>
       </div>
       <div className="promo-cards-container">
         {promoData.map((promo, index) => (

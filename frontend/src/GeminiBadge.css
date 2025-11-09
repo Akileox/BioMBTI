@@ -28,6 +28,22 @@
   font-size: 3rem;
   margin-bottom: 1rem;
   filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gemini-badge-logo {
+  max-width: 80px;
+  max-height: 80px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
+}
+
+.gemini-badge-icon-fallback {
+  font-size: 3rem;
 }
 
 .gemini-badge-content {

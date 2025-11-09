@@ -85,6 +85,12 @@
   animation: float 3s ease-in-out infinite;
 }
 
+.loading-image-fallback {
+  font-size: 6rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);

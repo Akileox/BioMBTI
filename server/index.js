@@ -23,8 +23,15 @@ const app = express();
 const PORT = process.env.PORT || 3001; // Use port from env or default to 3001
 
 // 3. Middlewares
-app.use(cors()); // Enable Cross-Origin Resource Sharing
-app.use(express.json()); // Enable JSON body parsing
+// CORS 설정: 프로덕션에서는 특정 origin만 허용하도록 설정 권장
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+    : '*', // 개발 환경에서는 모든 origin 허용, 프로덕션에서는 특정 도메인만 허용
+  credentials: true
+};
+app.use(cors(corsOptions)); // Enable Cross-Origin Resource Sharing
+app.use(express.json({ limit: '1mb' })); // Enable JSON body parsing with size limit
 // IP 주소를 정확히 가져오기 위한 설정 (프록시 환경 고려)
 app.set('trust proxy', true);
 
@@ -170,12 +177,35 @@ app.post('/api/get-result', async (req, res) => {
   try {
     const { answers } = req.body; // e.g., [{ question: "...", answerValue: "E" }, ...]
 
+    // 입력 검증
     if (!answers || !Array.isArray(answers) || answers.length === 0) {
       return res.status(400).json({ error: 'No answers provided.' });
     }
 
-    console.log('Received answers:', answers);
-    console.log(`USE_MOCK status: ${USE_MOCK} (env value: ${process.env.USE_MOCK})`);
+    // 답변 개수 제한 (최대 20개)
+    if (answers.length > 20) {
+      return res.status(400).json({ error: 'Too many answers. Maximum 20 answers allowed.' });
+    }
+
+    // 각 답변 검증
+    const validAnswerValues = ['E', 'I', 'A', 'C', 'G', 'L', 'H', 'R'];
+    for (const answer of answers) {
+      if (!answer.question || typeof answer.question !== 'string') {
+        return res.status(400).json({ error: 'Invalid answer format: question is required.' });
+      }
+      if (!answer.answerValue || !validAnswerValues.includes(answer.answerValue)) {
+        return res.status(400).json({ error: `Invalid answer value. Must be one of: ${validAnswerValues.join(', ')}` });
+      }
+      // 질문 길이 제한 (최대 500자)
+      if (answer.question.length > 500) {
+        return res.status(400).json({ error: 'Question too long. Maximum 500 characters allowed.' });
+      }
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Received answers:', answers);
+      console.log(`USE_MOCK status: ${USE_MOCK} (env value: ${process.env.USE_MOCK})`);
+    }
 
     // --- [Mock Data for Testing] ---
     // USE_MOCK이 true면 API 관련 코드를 전혀 실행하지 않고 바로 Mock 데이터 반환
@@ -206,8 +236,16 @@ app.post('/api/get-result', async (req, res) => {
     }
 
     // 질문과 답변을 함께 전달하여 더 정확한 분석
+    // XSS 및 Prompt Injection 방지를 위해 특수 문자 이스케이프
+    const sanitizeForPrompt = (text) => {
+      return text
+        .replace(/[<>]/g, '') // HTML 태그 제거
+        .replace(/\n/g, ' ') // 줄바꿈을 공백으로
+        .substring(0, 200); // 최대 길이 제한
+    };
+    
     const answersWithQuestions = answers.map((a, index) => 
-      `Q${index + 1}: ${a.question} - Answer: ${a.answerValue}`
+      `Q${index + 1}: ${sanitizeForPrompt(a.question)} - Answer: ${a.answerValue}`
     ).join('\n');
     
     // 타입 코드별 동물 매핑 정보를 프롬프트에 포함
@@ -310,8 +348,21 @@ app.post('/api/submit-result', async (req, res) => {
   try {
     const { typeCode } = req.body;
 
+    // 입력 검증
     if (!typeCode || typeof typeCode !== 'string') {
       return res.status(400).json({ error: 'typeCode is required.' });
+    }
+
+    // 타입 코드 형식 검증 (4자리 대문자 알파벳만 허용)
+    const typeCodeUpper = typeCode.toUpperCase().trim();
+    if (!/^[A-Z]{4}$/.test(typeCodeUpper)) {
+      return res.status(400).json({ error: 'Invalid typeCode format. Must be 4 uppercase letters.' });
+    }
+
+    // 유효한 타입 코드인지 확인
+    const validTypeCodes = Object.keys(typeTitleMap).filter(key => key !== 'default');
+    if (!validTypeCodes.includes(typeCodeUpper)) {
+      return res.status(400).json({ error: 'Invalid typeCode. Must be a valid Bio-MBTI type code.' });
     }
 
     if (!db) {
@@ -326,7 +377,6 @@ app.post('/api/submit-result', async (req, res) => {
                      req.connection.remoteAddress || 
                      'unknown';
     const hashedIp = crypto.createHash('sha256').update(clientIp).digest('hex').substring(0, 16);
-    const typeCodeUpper = typeCode.toUpperCase();
 
     // 중복 저장 방지: 트랜잭션을 사용하여 원자적 연산 보장
     // 같은 IP에서 같은 타입코드를 30초 이내에 저장한 경우 스킵

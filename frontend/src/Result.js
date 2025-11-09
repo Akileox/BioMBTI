@@ -10,7 +10,7 @@ const typeData = {
   // 다른 타입들도 여기에 추가 가능
   // 기본값으로 fallback
   default: {
-    image: '/images/types/default.png',
+    image: '/images/types/ICLR.png', // default.png가 없으므로 ICLR.png를 기본값으로 사용
     keywords: []
   }
 };
@@ -20,8 +20,13 @@ function Result({ result, onRestart }) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [logoError, setLogoError] = useState(false);
   const savedRef = useRef(new Set()); // 이미 저장한 결과 추적 (타입코드만 저장)
   const savingRef = useRef(false); // 현재 저장 중인지 추적 (동시 요청 방지)
+  
+  // 이미지 경로 설정 (필요시 수정 가능)
+  const logoImage = '/images/logos/K-BioX_Logo.png';
+  const fallbackEmoji = '🦭';
 
   // 통계 데이터 로드
   useEffect(() => {
@@ -30,21 +35,21 @@ function Result({ result, onRestart }) {
         // API URL 구성: 환경 변수가 있으면 사용, 없으면 상대 경로 사용
         const baseUrl = process.env.REACT_APP_API_URL || '';
         const apiUrl = baseUrl ? `${baseUrl}/api/get-stats` : '/api/get-stats';
-        console.log('Fetching stats from:', apiUrl);
-        console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL || '(not set)');
-        
         const response = await fetch(apiUrl);
         if (response.ok) {
           const data = await response.json();
-          console.log('Stats data received:', data);
           setStats(data);
         } else {
-          console.error('Failed to fetch stats:', response.status, response.statusText);
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Failed to fetch stats:', response.status, response.statusText);
+          }
           // 에러가 발생해도 기본값 설정 (통계 섹션은 표시되지만 0명으로 표시)
           setStats({ totalCount: 0, typeCounts: {} });
         }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Failed to fetch stats:', error);
+        }
         // 네트워크 에러 등이 발생해도 기본값 설정
         setStats({ totalCount: 0, typeCounts: {} });
       } finally {
@@ -63,7 +68,6 @@ function Result({ result, onRestart }) {
 
     // 공유 링크로 접근한 경우 저장하지 않음
     if (result.isShared) {
-      console.log('Shared link access - skipping save');
       return;
     }
 
@@ -72,7 +76,6 @@ function Result({ result, onRestart }) {
 
     // 이미 저장 중이면 스킵
     if (savingRef.current) {
-      console.log('Already saving, skipping duplicate request...');
       return;
     }
 
@@ -85,7 +88,6 @@ function Result({ result, onRestart }) {
     if (savedInStorage) {
       const savedTime = parseInt(savedInStorage);
       if (now - savedTime < 60000) { // 1분 이내
-        console.log(`Result ${resultKey} already saved recently (${Math.round((now - savedTime)/1000)}s ago), skipping...`);
         savedRef.current.add(resultKey); // 메모리에도 추가
         // 통계만 다시 로드
         const fetchStats = async () => {
@@ -99,7 +101,7 @@ function Result({ result, onRestart }) {
               setStats(statsData);
             }
           } catch (error) {
-            if (!isCancelled) {
+            if (!isCancelled && process.env.NODE_ENV !== 'production') {
               console.error('Failed to fetch stats:', error);
             }
           }
@@ -111,19 +113,19 @@ function Result({ result, onRestart }) {
     
     // 메모리에서도 확인
     if (savedRef.current.has(resultKey)) {
-      console.log(`Result ${resultKey} already saved in this session, skipping...`);
       // 통계만 다시 로드
       const fetchStats = async () => {
         if (isCancelled) return;
         try {
-          const statsUrl = `${process.env.REACT_APP_API_URL || ''}/api/get-stats`;
+          const baseUrl = process.env.REACT_APP_API_URL || '';
+          const statsUrl = baseUrl ? `${baseUrl}/api/get-stats` : '/api/get-stats';
           const statsResponse = await fetch(statsUrl);
           if (statsResponse.ok && !isCancelled) {
             const statsData = await statsResponse.json();
             setStats(statsData);
           }
         } catch (error) {
-          if (!isCancelled) {
+          if (!isCancelled && process.env.NODE_ENV !== 'production') {
             console.error('Failed to fetch stats:', error);
           }
         }
@@ -159,13 +161,6 @@ function Result({ result, onRestart }) {
         const responseData = await response.json();
         
         if (response.ok && !isCancelled) {
-          // 이미 localStorage와 메모리에 저장했으므로 추가 작업 불필요
-          if (responseData.skipped) {
-            console.log('Server skipped duplicate submission');
-          } else {
-            console.log('Result saved successfully:', resultKey);
-          }
-          
           // 저장 후 통계 다시 로드
           const baseUrl = process.env.REACT_APP_API_URL || '';
           const statsUrl = baseUrl ? `${baseUrl}/api/get-stats` : '/api/get-stats';
@@ -175,14 +170,18 @@ function Result({ result, onRestart }) {
             setStats(statsData);
           }
         } else if (!isCancelled) {
-          console.error('Failed to save result:', responseData);
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Failed to save result:', responseData);
+          }
           // 실패한 경우 플래그 제거하여 재시도 가능하게
           savedRef.current.delete(resultKey);
           localStorage.removeItem(storageKey);
         }
       } catch (error) {
         if (!isCancelled) {
-          console.error('Failed to save result:', error);
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Failed to save result:', error);
+          }
           // 에러 발생 시 플래그 제거하여 재시도 가능하게
           savedRef.current.delete(resultKey);
           localStorage.removeItem(storageKey);
@@ -307,7 +306,21 @@ function Result({ result, onRestart }) {
     <div className="result-container">
       <div className="result-card">
         <div className="result-header">
-                      <h1>🦭 당신의 Bio-MBTI 결과: {result.typeCode}</h1>
+                      <div className="result-title-container">
+                        <div className="result-logo-container">
+                          {!logoError && logoImage ? (
+                            <img 
+                              src={logoImage} 
+                              alt="Bio-MBTI Logo" 
+                              className="result-logo-image"
+                              onError={() => setLogoError(true)}
+                            />
+                          ) : (
+                            <span className="result-logo-fallback">{fallbackEmoji}</span>
+                          )}
+                        </div>
+                        <h1>당신의 Bio-MBTI 결과: {result.typeCode}</h1>
+                      </div>
         </div>
 
         <div className="result-type">

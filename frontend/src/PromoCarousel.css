@@ -28,34 +28,23 @@
 }
 
 .promo-carousel-content {
-  padding: 3rem 2rem;
+  padding: 1rem;
   text-align: center;
-  color: #2c3e50;
-  background: linear-gradient(135deg, var(--accent-color, #4a90e2) 0%, rgba(255, 255, 255, 0.6) 100%);
-  min-height: 250px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-}
-
-.promo-carousel-icon {
-  font-size: 4rem;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-  animation: float 3s ease-in-out infinite;
+  min-height: auto;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .promo-carousel-image {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  animation: float 3s ease-in-out infinite;
-  margin-bottom: 1rem;
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 @keyframes float {
@@ -67,23 +56,6 @@
   }
 }
 
-.promo-carousel-title {
-  font-size: 2rem;
-  margin: 0;
-  font-weight: bold;
-  color: #2c3e50;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-}
-
-.promo-carousel-description {
-  font-size: 1.1rem;
-  margin: 0;
-  color: #34495e;
-  font-weight: 500;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-}
 
 .promo-carousel-indicators {
   display: flex;
@@ -121,25 +93,12 @@
   }
 
   .promo-carousel-content {
-    padding: 2rem 1.5rem;
-    min-height: 200px;
-  }
-
-  .promo-carousel-icon {
-    font-size: 3rem;
+    padding: 0.75rem;
+    min-height: auto;
   }
 
   .promo-carousel-image {
-    width: 150px;
-    height: 150px;
-  }
-
-  .promo-carousel-title {
-    font-size: 1.5rem;
-  }
-
-  .promo-carousel-description {
-    font-size: 1rem;
+    max-height: 250px;
   }
 }
 

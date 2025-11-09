@@ -6,6 +6,11 @@ import Footer from './Footer';
 import './Survey.css';
 
 function Survey({ onComplete }) {
+  const [logoError, setLogoError] = useState(false);
+  
+  // 이미지 경로 설정 (필요시 수정 가능)
+  const logoImage = '/images/logos/K-BioX_Logo.png';
+  const fallbackEmoji = '🦭';
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
@@ -29,7 +34,9 @@ function Survey({ onComplete }) {
 
       })
       .catch(err => {
-        console.error('질문 데이터 로드 실패:', err);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('질문 데이터 로드 실패:', err);
+        }
         setIsLoading(false);
       });
   }, []);
@@ -76,8 +83,20 @@ function Survey({ onComplete }) {
       <SnowBackground />
       <div className="survey-main">
         <div className="survey-header">
-          <h1>🦭 Bio-MBTI 테스트</h1>
-          <p className="subtitle">당신의 환경 성향을 알아보는 12가지 질문</p>
+          <div className="survey-logo-container">
+            {!logoError && logoImage ? (
+              <img 
+                src={logoImage} 
+                alt="Bio-MBTI Logo" 
+                className="survey-logo-image"
+                onError={() => setLogoError(true)}
+              />
+            ) : (
+              <span className="survey-logo-fallback">{fallbackEmoji}</span>
+            )}
+          </div>
+          <h1>Bio-MBTI 테스트</h1>
+          <p className="subtitle">당신의 환경 보호 성향을 알아보는 12가지 질문</p>
         </div>
 
         <div className="progress-bar">

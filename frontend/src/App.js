@@ -13,6 +13,7 @@ function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState(null);
   const [floatingMessage, setFloatingMessage] = useState(0);
+  const [loadingImageError, setLoadingImageError] = useState(false);
 
   // 오픈그래프 메타태그 동적 업데이트 (카카오톡 공유용)
   const updateOpenGraphMeta = (resultData) => {
@@ -38,7 +39,7 @@ function App() {
     
     // 프로덕션 URL 우선 사용 (환경 변수로 설정 가능)
     const siteUrl = process.env.REACT_APP_SITE_URL || window.location.origin;
-    const imagePath = typeImageMap[resultData.typeCode] || '/images/types/default.png';
+    const imagePath = typeImageMap[resultData.typeCode] || '/images/types/ICLR.png';
     const imageUrl = `${siteUrl}${imagePath}`;
     const shareUrl = `${siteUrl}${window.location.pathname}?type=${resultData.typeCode}&share=true`;
     const description = resultData.description ? resultData.description.substring(0, 200) : '나의 환경 보호 성향을 알아보는 Bio-MBTI 테스트';
@@ -98,6 +99,7 @@ function App() {
     setIsLoading(true);
     setError(null);
     setLoadingProgress(0);
+    setLoadingImageError(false); // 이미지 에러 상태 초기화
 
     const startTime = Date.now();
     const minLoadingTime = 5000; // 최소 5초
@@ -166,7 +168,9 @@ function App() {
     } catch (err) {
       clearInterval(progressInterval);
       clearInterval(messageInterval);
-      console.error('API 호출 실패:', err);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('API 호출 실패:', err);
+      }
       // 네트워크 오류인 경우 더 친절한 메시지
       const errorMessage = err.message.includes('Failed to fetch') || err.message.includes('NetworkError')
         ? '서버에 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인해주세요.'
@@ -192,19 +196,29 @@ function App() {
   };
 
   if (isLoading) {
+    // 로딩 이미지 설정 (이미지 경로를 변경하려면 여기를 수정)
+    const loadingImageUrl = '/images/TeamGemini.png';
+    const loadingImageFallback = '✨'; // 이미지가 없을 때 표시할 이모지
+    
     return (
       <div className="loading-screen">
         <SnowBackground />
         <div className="loading-content">
           <div className="loading-image-container">
-            <img 
-              src="/images/TeamGemini.png" 
-              alt="Gemini AI" 
-              className="loading-image"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
+            {!loadingImageError && loadingImageUrl ? (
+              <img 
+                src={loadingImageUrl} 
+                alt="Gemini AI" 
+                className="loading-image"
+                onError={() => {
+                  setLoadingImageError(true);
+                }}
+              />
+            ) : (
+              <div className="loading-image-fallback" style={{ fontSize: '6rem' }}>
+                {loadingImageFallback}
+              </div>
+            )}
           </div>
           <div className="floating-message-container">
             <p className="floating-message">{loadingMessages[floatingMessage]}</p>
