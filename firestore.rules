@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // 유효한 Bio-MBTI 타입 코드 검증 함수
     function isValidTypeCode(typeCode) {
-      return typeCode.matches('^(ICLR|ICLG|ICHR|ICHG|IACR|IACG|IAHR|IAHG|ECLR|ECLG|ECHR|ECHG|ECGR|EACR|EACG|EAHR|EAHG)$');
+      return typeCode.matches('^(ICLR|ICLG|ICHR|ICHG|IACR|IACG|IAHR|IAHG|ECLR|ECLG|ECHR|ECHG|ECGR|EACR|EACG|EAHR|EAHG|EAGR)$');
     }
     
     // results 컬렉션 규칙

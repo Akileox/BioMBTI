@@ -36,6 +36,7 @@ function App() {
       'EACG': '/images/types/ICLR.png',
       'EAHR': '/images/types/ICLR.png',
       'EAHG': '/images/types/ICLR.png',
+      'EAGR': '/images/types/EAGR.jpg',
     };
     
     // 프로덕션 URL 우선 사용 (환경 변수로 설정 가능)

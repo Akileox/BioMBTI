@@ -139,6 +139,7 @@ const typeTitleMap = {
   'EACG': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'EAHR': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'EAHG': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'EAGR': "당신은 '함께 탐험하는 바다의 소통가 벨루가'형!",
   // 기본값
   'default': "당신의 Bio-MBTI 결과"
 };
@@ -162,6 +163,7 @@ const typeAnimalMap = {
   'EACG': '북극곰',
   'EAHR': '북극곰',
   'EAHG': '북극곰',
+  'EAGR': '벨루가',
   'default': '북극 동물'
 };
 
@@ -496,12 +498,12 @@ app.get('/api/get-stats', async (req, res) => {
       typeCounts[typeCode] = (typeCounts[typeCode] || 0) + 1;
     });
 
-    // 17개 타입 모두 포함 (없으면 0)
+    // 18개 타입 모두 포함 (없으면 0)
     const allTypes = [
       'ICLR', 'ICLG', 'ICHR', 'ICHG',
       'IACR', 'IACG', 'IAHR', 'IAHG',
       'ECLR', 'ECLG', 'ECHR', 'ECHG', 'ECGR',
-      'EACR', 'EACG', 'EAHR', 'EAHG'
+      'EACR', 'EACG', 'EAHR', 'EAHG', 'EAGR'
     ];
     
     allTypes.forEach(type => {

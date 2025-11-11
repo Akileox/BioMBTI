@@ -11,7 +11,12 @@ const typeData = {
   'ECGR': {
     image: '/images/types/ECGR.png',
     keywords: ['#ECGR', '#북극순록', '#무리생활', '#효율적'],
-    creator: '@' // 동물별 제작자 설정
+    creator: '@Jay'
+  },
+  'EAGR': {
+    image: '/images/types/EAGR.jpg',
+    keywords: ['#EAGR', '#벨루가', '#소통의 중심', '#바다의 카나리아', '#적극성'],
+    creator: '@HWChoi'
   },
   // 다른 타입들도 여기에 추가 가능
   // 예시:
