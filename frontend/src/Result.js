@@ -2,31 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Result.css';
 
 // 타입별 이미지와 키워드 매핑
-const getImagePath = (path) => {
-  return `${process.env.PUBLIC_URL || ''}${path}`;
-};
-
 const typeData = {
   'ICLR': {
-    image: getImagePath('/images/types/ICLR.png'),
+    image: '/images/types/ICLR.png',
     keywords: ['#ICLR', '#하프물범', '#높은 적응력'],
     creator: '@Akileox' // 동물별 제작자 설정
   },
   'ECGR': {
-    image: getImagePath('/images/types/ECGR.png'),
+    image: '/images/types/ECGR.png',
     keywords: ['#ECGR', '#북극순록', '#무리생활', '#효율적'],
     creator: '@' // 동물별 제작자 설정
   },
   // 다른 타입들도 여기에 추가 가능
   // 예시:
   // 'ICLG': {
-  //   image: getImagePath('/images/types/ICLG.png'),
+  //   image: '/images/types/ICLG.png',
   //   keywords: ['#ICLG', '#하프물범', '#키워드'],
   //   creator: 'K-BioX' // 각 타입별로 다른 제작자 설정 가능
   // },
   // 기본값으로 fallback
   default: {
-    image: getImagePath('/images/types/ICLR.png'), // default.png가 없으므로 ICLR.png를 기본값으로 사용
+    image: '/images/types/ICLR.png', // default.png가 없으므로 ICLR.png를 기본값으로 사용
     keywords: [],
     creator: 'K-BioX' // 기본 제작자
   }
@@ -48,7 +44,7 @@ function Result({ result, onRestart }) {
   const savingRef = useRef(false); // 현재 저장 중인지 추적 (동시 요청 방지)
   
   // 이미지 경로 설정 (필요시 수정 가능)
-  const logoImage = `${process.env.PUBLIC_URL || ''}/images/logos/K-BioX_Logo.png`;
+  const logoImage = '/images/logos/K-BioX_Logo.png';
   const fallbackEmoji = '🦭';
 
   // 통계 데이터 로드
@@ -327,31 +323,108 @@ function Result({ result, onRestart }) {
       ? result.description.substring(0, 200) 
       : `나의 Bio-MBTI 결과: ${result.typeCode} - 환경 보호 성향을 알아보는 테스트`;
     
-    // 공유 템플릿 설정 (피드 타입 - 이미지 포함)
-    window.Kakao.Share.sendDefault({
-      objectType: 'feed',
-      content: {
-        title: result.title || `당신의 Bio-MBTI 결과: ${result.typeCode}`,
-        description: description,
-        imageUrl: imageUrl, // 결과 이미지 포함
-        link: {
-          mobileWebUrl: shareUrl,
-          webUrl: shareUrl,
-        },
-      },
-      social: {
-        likeCount: stats?.totalCount || 0, // 좋아요 수 (참여자 수)
-      },
-      buttons: [
-        {
-          title: '테스트 하러 가기',
+    // 모바일 환경 확인 (카카오톡 공유는 모바일에서만 정상 작동)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // 현재 도메인 정보 로깅 (디버깅용)
+    const currentDomain = window.location.origin;
+    if (process.env.NODE_ENV === 'development') {
+      console.log('카카오톡 공유 - 현재 도메인:', currentDomain);
+      console.log('카카오톡 공유 - 사용할 URL:', shareUrl);
+    }
+    
+    try {
+      // 공유 템플릿 설정 (피드 타입 - 이미지 포함)
+      window.Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: result.title || `당신의 Bio-MBTI 결과: ${result.typeCode}`,
+          description: description,
+          imageUrl: imageUrl, // 결과 이미지 포함
           link: {
             mobileWebUrl: shareUrl,
             webUrl: shareUrl,
           },
         },
-      ],
-    });
+        social: {
+          likeCount: stats?.totalCount || 0, // 좋아요 수 (참여자 수)
+        },
+        buttons: [
+          {
+            title: '테스트 하러 가기',
+            link: {
+              mobileWebUrl: shareUrl,
+              webUrl: shareUrl,
+            },
+          },
+        ],
+        // 성공/실패 콜백 추가
+        success: function(response) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('카카오톡 공유 성공:', response);
+          }
+        },
+        fail: function(error) {
+          // 도메인 불일치 에러 감지
+          const errorMsg = error?.msg || error?.message || JSON.stringify(error);
+          const isDomainError = errorMsg.includes('domain mismatched') || 
+                               errorMsg.includes('domain') || 
+                               (error?.code === -401);
+          
+          if (isDomainError) {
+            console.error('카카오톡 도메인 등록 오류:', errorMsg);
+            console.error('현재 도메인:', currentDomain);
+            console.error('해결 방법: 카카오톡 개발자 콘솔 > 앱 설정 > 플랫폼 > Web 플랫폼에 다음 도메인을 등록하세요:');
+            console.error(`  - ${currentDomain}`);
+            alert(`카카오톡 공유를 사용하려면 도메인 등록이 필요합니다.\n\n현재 도메인: ${currentDomain}\n\n카카오톡 개발자 콘솔에서 이 도메인을 등록해주세요.\n(앱 설정 > 플랫폼 > Web 플랫폼)`);
+          } else {
+            // 다른 에러는 기존 로직대로 처리
+            if (!isMobile) {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                  alert('데스크톱에서는 카카오톡 공유가 지원되지 않습니다.\n링크가 클립보드에 복사되었습니다!');
+                }).catch(() => {
+                  alert('데스크톱에서는 카카오톡 공유가 지원되지 않습니다.\n모바일에서 접속하시면 카카오톡으로 공유할 수 있습니다.');
+                });
+              } else {
+                alert('데스크톱에서는 카카오톡 공유가 지원되지 않습니다.\n모바일에서 접속하시면 카카오톡으로 공유할 수 있습니다.');
+              }
+            }
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('카카오톡 공유 에러:', errorMsg);
+            }
+          }
+        }
+      });
+    } catch (error) {
+      // 동기적 에러 처리 (kakaolink:// 스킴 에러 등)
+      const errorMsg = error?.message || String(error);
+      const isSchemeError = errorMsg.includes('kakaolink://') || 
+                           errorMsg.includes('scheme does not have a registered handler');
+      
+      if (isSchemeError) {
+        // 데스크톱 브라우저에서 발생하는 kakaolink:// 스킴 에러는 정상적인 동작
+        if (!isMobile) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              alert('데스크톱에서는 카카오톡 공유가 지원되지 않습니다.\n링크가 클립보드에 복사되었습니다!');
+            }).catch(() => {
+              alert('데스크톱에서는 카카오톡 공유가 지원되지 않습니다.\n모바일에서 접속하시면 카카오톡으로 공유할 수 있습니다.');
+            });
+          } else {
+            alert('데스크톱에서는 카카오톡 공유가 지원되지 않습니다.\n모바일에서 접속하시면 카카오톡으로 공유할 수 있습니다.');
+          }
+        }
+        // 개발 환경에서만 에러 로그 출력
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('카카오톡 공유 에러 (정상 동작 - 데스크톱):', errorMsg);
+        }
+      } else {
+        // 다른 에러는 로깅
+        console.error('카카오톡 공유 예상치 못한 에러:', error);
+        alert('카카오톡 공유 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    }
   };
 
 

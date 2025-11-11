@@ -18,30 +18,29 @@ function App() {
   // 오픈그래프 메타태그 동적 업데이트 (카카오톡 공유용)
   const updateOpenGraphMeta = (resultData) => {
     // 타입별 이미지 경로 (Result.js의 typeData와 동일하게 유지)
-    const getImagePath = (path) => `${process.env.PUBLIC_URL || ''}${path}`;
     const typeImageMap = {
-      'ICLR': getImagePath('/images/types/ICLR.png'),
-      'ICLG': getImagePath('/images/types/ICLR.png'),
-      'ICHR': getImagePath('/images/types/ICLR.png'),
-      'ICHG': getImagePath('/images/types/ICLR.png'),
-      'IACR': getImagePath('/images/types/ICLR.png'),
-      'IACG': getImagePath('/images/types/ICLR.png'),
-      'IAHR': getImagePath('/images/types/ICLR.png'),
-      'IAHG': getImagePath('/images/types/ICLR.png'),
-      'ECLR': getImagePath('/images/types/ICLR.png'),
-      'ECLG': getImagePath('/images/types/ICLR.png'),
-      'ECHR': getImagePath('/images/types/ICLR.png'),
-      'ECHG': getImagePath('/images/types/ICLR.png'),
-      'ECGR': getImagePath('/images/types/ECGR.png'),
-      'EACR': getImagePath('/images/types/ICLR.png'),
-      'EACG': getImagePath('/images/types/ICLR.png'),
-      'EAHR': getImagePath('/images/types/ICLR.png'),
-      'EAHG': getImagePath('/images/types/ICLR.png'),
+      'ICLR': '/images/types/ICLR.png',
+      'ICLG': '/images/types/ICLR.png',
+      'ICHR': '/images/types/ICLR.png',
+      'ICHG': '/images/types/ICLR.png',
+      'IACR': '/images/types/ICLR.png',
+      'IACG': '/images/types/ICLR.png',
+      'IAHR': '/images/types/ICLR.png',
+      'IAHG': '/images/types/ICLR.png',
+      'ECLR': '/images/types/ICLR.png',
+      'ECLG': '/images/types/ICLR.png',
+      'ECHR': '/images/types/ICLR.png',
+      'ECHG': '/images/types/ICLR.png',
+      'ECGR': '/images/types/ECGR.png',
+      'EACR': '/images/types/ICLR.png',
+      'EACG': '/images/types/ICLR.png',
+      'EAHR': '/images/types/ICLR.png',
+      'EAHG': '/images/types/ICLR.png',
     };
     
     // 프로덕션 URL 우선 사용 (환경 변수로 설정 가능)
     const siteUrl = process.env.REACT_APP_SITE_URL || window.location.origin;
-    const imagePath = typeImageMap[resultData.typeCode] || getImagePath('/images/types/ICLR.png');
+    const imagePath = typeImageMap[resultData.typeCode] || '/images/types/ICLR.png';
     const imageUrl = `${siteUrl}${imagePath}`;
     const shareUrl = `${siteUrl}${window.location.pathname}?type=${resultData.typeCode}&share=true`;
     const description = resultData.description ? resultData.description.substring(0, 200) : '나의 환경 보호 성향을 알아보는 Bio-MBTI 테스트';
@@ -199,7 +198,7 @@ function App() {
 
   if (isLoading) {
     // 로딩 이미지 설정 (이미지 경로를 변경하려면 여기를 수정)
-    const loadingImageUrl = `${process.env.PUBLIC_URL || ''}/images/TeamGemini.png`;
+    const loadingImageUrl = '/images/TeamGemini.png';
     const loadingImageFallback = '✨'; // 이미지가 없을 때 표시할 이모지
     
     return (
