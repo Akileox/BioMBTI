@@ -212,7 +212,9 @@ app.post('/api/get-result', async (req, res) => {
     // --- [Mock Data for Testing] ---
     // USE_MOCK이 true면 API 관련 코드를 전혀 실행하지 않고 바로 Mock 데이터 반환
     if (USE_MOCK === true) {
-      console.log('Returning MOCK data (API call skipped)');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Returning MOCK data (API call skipped)');
+      }
       const mockResult = {
         typeCode: 'ICLR',
         title: "당신은 '혼자서도 척척 하프물범'형!",
@@ -226,7 +228,9 @@ app.post('/api/get-result', async (req, res) => {
 
     // --- [Real Gemini API Call] ---
     // USE_MOCK이 false일 때만 이 블록이 실행됨
-    console.log('Proceeding with real Gemini API call...');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Proceeding with real Gemini API call...');
+    }
     
     // API 키 및 genAI 인스턴스 검증 (USE_MOCK이 false일 때만 도달)
     if (!genAI) {
@@ -329,7 +333,9 @@ Respond ONLY with valid JSON, no additional text.`;
       keywords: analysisResult.keywords || [`#${typeCode}`]
     };
     
-    console.log('Final result:', finalResult);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Final result:', finalResult);
+    }
     
     // 결과만 반환 (저장은 프론트엔드에서 /api/submit-result로 처리)
     return res.json(finalResult);
@@ -401,7 +407,9 @@ app.post('/api/submit-result', async (req, res) => {
         const timeDiff = now.getTime() - recentTimestamp.getTime();
         
         if (timeDiff < 30000) { // 30초 이내
-          console.log(`Duplicate submission detected (IP: ${hashedIp}, typeCode: ${typeCodeUpper}, ${Math.round(timeDiff/1000)}s ago), skipping...`);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log(`Duplicate submission detected (IP: ${hashedIp}, typeCode: ${typeCodeUpper}, ${Math.round(timeDiff/1000)}s ago), skipping...`);
+          }
           return res.json({ success: true, skipped: true, message: 'Duplicate submission skipped' });
         }
       }
@@ -428,7 +436,9 @@ app.post('/api/submit-result', async (req, res) => {
           if (mostRecent) {
             const timeDiff = now.getTime() - mostRecent.timestamp.getTime();
             if (timeDiff < 30000) {
-              console.log(`Duplicate submission detected (alternative method, ${Math.round(timeDiff/1000)}s ago), skipping...`);
+              if (process.env.NODE_ENV !== 'production') {
+                console.log(`Duplicate submission detected (alternative method, ${Math.round(timeDiff/1000)}s ago), skipping...`);
+              }
               return res.json({ success: true, skipped: true, message: 'Duplicate submission skipped' });
             }
           }
@@ -446,7 +456,9 @@ app.post('/api/submit-result', async (req, res) => {
       createdAt: new Date().toISOString()
     });
 
-    console.log('Result saved to Firestore:', docRef.id);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Result saved to Firestore:', docRef.id);
+    }
     return res.json({ success: true, id: docRef.id });
 
   } catch (error) {

@@ -11,7 +11,7 @@ const typeData = {
   'ECGR': {
     image: '/images/types/ECGR.png',
     keywords: ['#ECGR', '#북극순록', '#무리생활', '#효율적'],
-    creator: 'K-BioX' // 동물별 제작자 설정
+    creator: '@' // 동물별 제작자 설정
   },
   // 다른 타입들도 여기에 추가 가능
   // 예시:
@@ -388,7 +388,7 @@ function Result({ result, onRestart }) {
               {result.typeCode}
             </div>
             <p className="seal-creator-text">
-              {typeInfo.creator || 'K-BioX'}가 만든 씰이에요!
+              {typeInfo.creator || 'K-BioX'}님이 제작한 씰이에요!
             </p>
           </div>
           <h2 className="type-title">{result.title || `당신의 Bio-MBTI 결과: ${result.typeCode}`}</h2>

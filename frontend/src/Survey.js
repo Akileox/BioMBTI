@@ -21,15 +21,46 @@ function Survey({ onComplete }) {
     fetch('/data/questions.json')
       .then(res => res.json())
       .then(data => {
-        // Fisher-Yates shuffle 알고리즘으로 랜덤 섞기
-        const shuffled = [...data];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        // 12개만 선택 (질문이 12개 미만이면 모두 사용)
-        const selectedQuestions = shuffled.slice(0, Math.min(12, shuffled.length));
-        setQuestions(selectedQuestions);
+        // 축별로 질문 분류
+        const questionsByAxis = {
+          'E/I': [],
+          'A/C': [],
+          'G/L': [],
+          'H/R': []
+        };
+        
+        data.forEach(question => {
+          if (question.axis && questionsByAxis[question.axis]) {
+            questionsByAxis[question.axis].push(question);
+          }
+        });
+        
+        // Fisher-Yates shuffle 함수
+        const shuffle = (array) => {
+          const shuffled = [...array];
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          return shuffled;
+        };
+        
+        // 각 축에서 3개씩 랜덤 선택
+        const selectedQuestions = [];
+        const axes = ['E/I', 'A/C', 'G/L', 'H/R'];
+        
+        axes.forEach(axis => {
+          const axisQuestions = questionsByAxis[axis];
+          if (axisQuestions.length > 0) {
+            const shuffled = shuffle(axisQuestions);
+            const selected = shuffled.slice(0, Math.min(3, shuffled.length));
+            selectedQuestions.push(...selected);
+          }
+        });
+        
+        // 최종 선택된 질문들을 다시 섞어서 순서를 랜덤화
+        const finalQuestions = shuffle(selectedQuestions);
+        setQuestions(finalQuestions);
         setIsLoading(false);
 
       })
