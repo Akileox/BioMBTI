@@ -2,27 +2,31 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Result.css';
 
 // 타입별 이미지와 키워드 매핑
+const getImagePath = (path) => {
+  return `${process.env.PUBLIC_URL || ''}${path}`;
+};
+
 const typeData = {
   'ICLR': {
-    image: '/images/types/ICLR.png',
+    image: getImagePath('/images/types/ICLR.png'),
     keywords: ['#ICLR', '#하프물범', '#높은 적응력'],
     creator: '@Akileox' // 동물별 제작자 설정
   },
   'ECGR': {
-    image: '/images/types/ECGR.png',
+    image: getImagePath('/images/types/ECGR.png'),
     keywords: ['#ECGR', '#북극순록', '#무리생활', '#효율적'],
     creator: '@' // 동물별 제작자 설정
   },
   // 다른 타입들도 여기에 추가 가능
   // 예시:
   // 'ICLG': {
-  //   image: '/images/types/ICLG.png',
+  //   image: getImagePath('/images/types/ICLG.png'),
   //   keywords: ['#ICLG', '#하프물범', '#키워드'],
   //   creator: 'K-BioX' // 각 타입별로 다른 제작자 설정 가능
   // },
   // 기본값으로 fallback
   default: {
-    image: '/images/types/ICLR.png', // default.png가 없으므로 ICLR.png를 기본값으로 사용
+    image: getImagePath('/images/types/ICLR.png'), // default.png가 없으므로 ICLR.png를 기본값으로 사용
     keywords: [],
     creator: 'K-BioX' // 기본 제작자
   }
@@ -44,7 +48,7 @@ function Result({ result, onRestart }) {
   const savingRef = useRef(false); // 현재 저장 중인지 추적 (동시 요청 방지)
   
   // 이미지 경로 설정 (필요시 수정 가능)
-  const logoImage = '/images/logos/K-BioX_Logo.png';
+  const logoImage = `${process.env.PUBLIC_URL || ''}/images/logos/K-BioX_Logo.png`;
   const fallbackEmoji = '🦭';
 
   // 통계 데이터 로드
