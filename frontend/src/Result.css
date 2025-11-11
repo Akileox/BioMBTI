@@ -118,6 +118,7 @@
 .type-image-container {
   margin-bottom: 1.5rem;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -142,6 +143,14 @@
   border-radius: 15px;
   letter-spacing: 0.2rem;
   box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+}
+
+.seal-creator-text {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #888;
+  font-style: italic;
+  margin-bottom: 0;
 }
 
 .type-title {

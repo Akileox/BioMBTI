@@ -31,6 +31,7 @@ function App() {
       'ECLG': '/images/types/ICLR.png',
       'ECHR': '/images/types/ICLR.png',
       'ECHG': '/images/types/ICLR.png',
+      'ECGR': '/images/types/ECGR.png',
       'EACR': '/images/types/ICLR.png',
       'EACG': '/images/types/ICLR.png',
       'EAHR': '/images/types/ICLR.png',

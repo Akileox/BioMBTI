@@ -5,13 +5,26 @@ import './Result.css';
 const typeData = {
   'ICLR': {
     image: '/images/types/ICLR.png',
-    keywords: ['#ICLR', '#하프물범', '#높은 적응력']
+    keywords: ['#ICLR', '#하프물범', '#높은 적응력'],
+    creator: '@Akileox' // 동물별 제작자 설정
+  },
+  'ECGR': {
+    image: '/images/types/ECGR.png',
+    keywords: ['#ECGR', '#북극순록', '#무리생활', '#효율적'],
+    creator: 'K-BioX' // 동물별 제작자 설정
   },
   // 다른 타입들도 여기에 추가 가능
+  // 예시:
+  // 'ICLG': {
+  //   image: '/images/types/ICLG.png',
+  //   keywords: ['#ICLG', '#하프물범', '#키워드'],
+  //   creator: 'K-BioX' // 각 타입별로 다른 제작자 설정 가능
+  // },
   // 기본값으로 fallback
   default: {
     image: '/images/types/ICLR.png', // default.png가 없으므로 ICLR.png를 기본값으로 사용
-    keywords: []
+    keywords: [],
+    creator: 'K-BioX' // 기본 제작자
   }
 };
 
@@ -374,6 +387,9 @@ function Result({ result, onRestart }) {
             <div className="type-code-fallback" style={{ display: 'none' }}>
               {result.typeCode}
             </div>
+            <p className="seal-creator-text">
+              {typeInfo.creator || 'K-BioX'}가 만든 씰이에요!
+            </p>
           </div>
           <h2 className="type-title">{result.title || `당신의 Bio-MBTI 결과: ${result.typeCode}`}</h2>
           <div className="type-keywords">

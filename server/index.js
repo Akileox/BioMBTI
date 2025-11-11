@@ -134,6 +134,7 @@ const typeTitleMap = {
   'ECLG': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'ECHR': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'ECHG': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'ECGR': "당신은 '함께 길을 찾는 효율적인 전략가, 북극순록'형!",
   'EACR': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'EACG': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'EAHR': "당신은 '함께하면 더 즐거운 북극곰'형!",
@@ -156,6 +157,7 @@ const typeAnimalMap = {
   'ECLG': '북극곰',
   'ECHR': '북극곰',
   'ECHG': '북극곰',
+  'ECGR': '북극순록',
   'EACR': '북극곰',
   'EACG': '북극곰',
   'EAHR': '북극곰',
@@ -482,11 +484,11 @@ app.get('/api/get-stats', async (req, res) => {
       typeCounts[typeCode] = (typeCounts[typeCode] || 0) + 1;
     });
 
-    // 16개 타입 모두 포함 (없으면 0)
+    // 17개 타입 모두 포함 (없으면 0)
     const allTypes = [
       'ICLR', 'ICLG', 'ICHR', 'ICHG',
       'IACR', 'IACG', 'IAHR', 'IAHG',
-      'ECLR', 'ECLG', 'ECHR', 'ECHG',
+      'ECLR', 'ECLG', 'ECHR', 'ECHG', 'ECGR',
       'EACR', 'EACG', 'EAHR', 'EAHG'
     ];
     
