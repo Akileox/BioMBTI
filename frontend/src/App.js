@@ -160,9 +160,9 @@ function App() {
       setTimeout(() => {
         setIsLoading(false);
         setResult(data);
-        // URL에 결과 파라미터 추가 (공유 링크용)
+        // URL에 결과 파라미터 추가 (공유 링크용, share=true는 제외 - 공유 링크에서만 사용)
         // 브라우저 URL은 현재 도메인 유지, 공유 링크는 프로덕션 URL 사용
-        const newUrl = `${window.location.origin}${window.location.pathname}?type=${data.typeCode}&share=true`;
+        const newUrl = `${window.location.origin}${window.location.pathname}?type=${data.typeCode}`;
         window.history.pushState({}, '', newUrl);
         // 동적 오픈그래프 메타태그 업데이트 (카카오톡 공유용)
         updateOpenGraphMeta(data);
