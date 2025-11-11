@@ -123,23 +123,23 @@ if (FIREBASE_ENABLED) {
 // 5. Type Code to Title and Animal Mapping
 const typeTitleMap = {
   'ICLR': "당신은 '혼자서도 척척 하프물범'형!",
-  'ICLG': "당신은 '혼자서도 척척 하프물범'형!",
+  'ICGR': "당신은 '툰드라의 고독한 탐색가, 북극여우'형!",
   'ICHR': "당신은 '혼자서도 척척 하프물범'형!",
-  'ICHG': "당신은 '혼자서도 척척 하프물범'형!",
-  'IACR': "당신은 '혼자서도 척척 하프물범'형!",
-  'IACG': "당신은 '혼자서도 척척 하프물범'형!",
+  'ICGH': "당신은 '기후 변화의 상징인인 헌신적 어미곰, 북극곰'형!",
+  'IALR': "당신은 '심해의 고독한 생존자'형!",
+  'IAGR': "당신은 '대규모 이동을 주도하는 행동가, 북극기러기'형!",
   'IAHR': "당신은 '혼자서도 척척 하프물범'형!",
   'IAHG': "당신은 '혼자서도 척척 하프물범'형!",
-  'ECLR': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'ECLR': "당신은 '든든한 영역 지킴이, 바다코끼리'형!",
   'ECLG': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'ECHR': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'ECHG': "당신은 '함께하면 더 즐거운 북극곰'형!",
   'ECGR': "당신은 '함께 길을 찾는 효율적인 전략가, 북극순록'형!",
-  'EACR': "당신은 '함께하면 더 즐거운 북극곰'형!",
+  'EALR': "당신은 '척박한 환경 속에서도 무리를 이루어 많은 영역을 살피는 사교적 활동가, 북극늑대'형!",
   'EACG': "당신은 '함께하면 더 즐거운 북극곰'형!",
-  'EAHR': "당신은 '함께하면 더 즐거운 북극곰'형!",
-  'EAHG': "당신은 '함께하면 더 즐거운 북극곰'형!",
-  'EAGR': "당신은 '함께 탐험하는 바다의 소통가 벨루가'형!",
+  'EALH': "당신은 '혹한을 함께 이겨내는 따뜻한 방패이자 공동체 수호자, 사향소'형!",
+  'EAGH': "당신은 '하늘을 품은 대담한 가족, 흰올빼미'형!",
+  'EAGR': "당신은 '함께 탐험하는 바다의 소통가, 벨루가'형!",
   // 기본값
   'default': "당신의 Bio-MBTI 결과"
 };
@@ -147,22 +147,22 @@ const typeTitleMap = {
 // 타입 코드별 동물 매핑 (제목에서 추출)
 const typeAnimalMap = {
   'ICLR': '하프물범',
-  'ICLG': '하프물범',
+  'ICGR': '북극여우',
   'ICHR': '하프물범',
-  'ICHG': '하프물범',
-  'IACR': '하프물범',
-  'IACG': '하프물범',
+  'ICGH': '북극곰',
+  'IALR': '그린란드 상어',
+  'IAGR': '북극기러기',
   'IAHR': '하프물범',
   'IAHG': '하프물범',
-  'ECLR': '북극곰',
+  'ECLR': '바다코끼리',
   'ECLG': '북극곰',
   'ECHR': '북극곰',
   'ECHG': '북극곰',
   'ECGR': '북극순록',
-  'EACR': '북극곰',
+  'EALR': '북극늑대',
   'EACG': '북극곰',
-  'EAHR': '북극곰',
-  'EAHG': '북극곰',
+  'EALH': '사향소',
+  'EAGH': '흰올빼미',
   'EAGR': '벨루가',
   'default': '북극 동물'
 };
@@ -317,22 +317,66 @@ Respond ONLY with valid JSON, no additional text.`;
     const analysisResultText = response.text();
     const analysisResult = JSON.parse(analysisResultText);
     
-    // 서버에서 미리 정의된 제목 매핑
-    // typeCode를 대문자로 변환하여 매칭 (Gemini가 소문자로 반환할 수 있음)
-    const typeCode = (analysisResult.typeCode || 'default').toUpperCase();
-    const title = typeTitleMap[typeCode] || typeTitleMap['default'];
+    // 답변을 기반으로 올바른 타입 코드 계산 (Gemini 오류 방지)
+    const calculateTypeCode = (answers) => {
+      // 각 축별 카운트
+      let eCount = 0, iCount = 0;
+      let aCount = 0, cCount = 0;
+      let gCount = 0, lCount = 0;
+      let hCount = 0, rCount = 0;
+      
+      answers.forEach(answer => {
+        const value = answer.answerValue;
+        if (value === 'E') eCount++;
+        else if (value === 'I') iCount++;
+        else if (value === 'A') aCount++;
+        else if (value === 'C') cCount++;
+        else if (value === 'G') gCount++;
+        else if (value === 'L') lCount++;
+        else if (value === 'H') hCount++;
+        else if (value === 'R') rCount++;
+      });
+      
+      // 다수결로 각 축 결정
+      const axis1 = eCount >= iCount ? 'E' : 'I';
+      const axis2 = aCount >= cCount ? 'A' : 'C';
+      const axis3 = gCount >= lCount ? 'G' : 'L';
+      const axis4 = hCount >= rCount ? 'H' : 'R';
+      
+      return `${axis1}${axis2}${axis3}${axis4}`;
+    };
     
-    // 타입 코드가 매핑에 없는 경우 로깅
-    if (!typeTitleMap[typeCode]) {
-      console.warn(`Warning: Type code "${typeCode}" not found in typeTitleMap. Using default title.`);
+    // 계산된 타입 코드
+    const calculatedTypeCode = calculateTypeCode(answers);
+    
+    // Gemini가 반환한 타입 코드
+    const geminiTypeCode = (analysisResult.typeCode || 'default').toUpperCase();
+    
+    // 타입 코드 검증 및 수정
+    let finalTypeCode = geminiTypeCode;
+    
+    // Gemini 타입 코드가 유효하지 않거나 계산된 코드와 다르면 계산된 코드 사용
+    if (!typeTitleMap[geminiTypeCode] || geminiTypeCode !== calculatedTypeCode) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`Type code mismatch detected. Gemini: "${geminiTypeCode}", Calculated: "${calculatedTypeCode}". Using calculated code.`);
+      }
+      finalTypeCode = calculatedTypeCode;
     }
     
-    // typeCode, description, keywords는 Gemini에서 받은 것을 사용, title은 서버에서 매핑
+    // 최종 타입 코드가 유효한지 확인
+    if (!typeTitleMap[finalTypeCode]) {
+      console.warn(`Warning: Calculated type code "${finalTypeCode}" not found in typeTitleMap. Using default.`);
+      finalTypeCode = 'default';
+    }
+    
+    const title = typeTitleMap[finalTypeCode] || typeTitleMap['default'];
+    
+    // typeCode는 계산된 것을 사용, description과 keywords는 Gemini에서 받은 것을 사용, title은 서버에서 매핑
     const finalResult = {
-      typeCode: typeCode, // 대문자로 정규화된 typeCode 사용
+      typeCode: finalTypeCode, // 계산된 타입 코드 사용 (Gemini 오류 방지)
       title: title,
       description: analysisResult.description,
-      keywords: analysisResult.keywords || [`#${typeCode}`]
+      keywords: analysisResult.keywords || [`#${finalTypeCode}`]
     };
     
     if (process.env.NODE_ENV !== 'production') {
@@ -498,12 +542,13 @@ app.get('/api/get-stats', async (req, res) => {
       typeCounts[typeCode] = (typeCounts[typeCode] || 0) + 1;
     });
 
-    // 18개 타입 모두 포함 (없으면 0)
+    // 16개 타입 모두 포함 (없으면 0)
     const allTypes = [
-      'ICLR', 'ICLG', 'ICHR', 'ICHG',
-      'IACR', 'IACG', 'IAHR', 'IAHG',
-      'ECLR', 'ECLG', 'ECHR', 'ECHG', 'ECGR',
-      'EACR', 'EACG', 'EAHR', 'EAHG', 'EAGR'
+      'ICLR', 'ICGR', 'ICHR', 'ICGH',
+      'IALR', 'IAGR', 'IAHR', 'IAHG',
+      'ECLR', 'ECLG', 'ECHR', 'ECHG',
+      'ECGR', 'EALR', 'EACG', 'EALH',
+      'EAGH', 'EAGR'
     ];
     
     allTypes.forEach(type => {

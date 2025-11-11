@@ -8,6 +8,16 @@ const typeData = {
     keywords: ['#ICLR', '#하프물범', '#높은 적응력'],
     creator: '@Akileox' // 동물별 제작자 설정
   },
+  'ICGR': {
+    image: '/images/types/ICGR.png',
+    keywords: ['#ICGR', '#북극여우', '#고독', '#탐색가', '#에너지효율'],
+    creator: '허인영'
+  },
+  'ECLR': {
+    image: '/images/types/ECLR.png',
+    keywords: ['#ECLR', '#바다코끼리', '#무리생활', '#신중함', '#이성적'],
+    creator: '@Raul'
+  },
   'ECGR': {
     image: '/images/types/ECGR.png',
     keywords: ['#ECGR', '#북극순록', '#무리생활', '#효율적'],
@@ -17,6 +27,36 @@ const typeData = {
     image: '/images/types/EAGR.jpg',
     keywords: ['#EAGR', '#벨루가', '#소통의 중심', '#바다의 카나리아', '#적극성'],
     creator: '@HWChoi'
+  },
+  'ICGH': {
+    image: '/images/types/ICGH.jpg',
+    keywords: ['#ICGH', '#북극곰', '#신중함', '#헌신적', '#기후변화'],
+    creator: '@이채원(Lucy)'
+  },
+  'EAGH': {
+    image: '/images/types/EAGH.jpg',
+    keywords: ['#EAGH', '#흰올빼미', '#대담함', '#가족', '#하늘'],
+    creator: '@이채원(Lucy)'
+  },
+  'IALR': {
+    image: '/images/types/IALR.jpg',
+    keywords: ['#IALR', '#그린란드상어', '#고독', '#생존자', '#심해'],
+    creator: '@이채원(Lucy)'
+  },
+  'IAGR': {
+    image: '/images/types/IAGR.png',
+    keywords: ['#IAGR', '#북극기러기', '#이동', '#행동가', '#효율적'],
+    creator: '허인영'
+  },
+  'EALR': {
+    image: '/images/types/EALR.png',
+    keywords: ['#EALR', '#북극늑대', '#무리생활', '#적극적', '#사냥'],
+    creator: '@Belle'
+  },
+  'EALH': {
+    image: '/images/types/EALH.jpg',
+    keywords: ['#EALH', '#사향소', '#공동체', '#방어', '#유대'],
+    creator: '@Hee'
   },
   // 다른 타입들도 여기에 추가 가능
   // 예시:
@@ -47,6 +87,10 @@ function Result({ result, onRestart }) {
   const [logoError, setLogoError] = useState(false);
   const savedRef = useRef(new Set()); // 이미 저장한 결과 추적 (타입코드만 저장)
   const savingRef = useRef(false); // 현재 저장 중인지 추적 (동시 요청 방지)
+  
+  // 공유 페이지인지 확인 (URL 파라미터 또는 result.isShared 플래그)
+  const urlParams = new URLSearchParams(window.location.search);
+  const isSharedPage = urlParams.get('share') === 'true' || result.isShared;
   
   // 이미지 경로 설정 (필요시 수정 가능)
   const logoImage = '/images/logos/K-BioX_Logo.png';
@@ -450,7 +494,7 @@ function Result({ result, onRestart }) {
                             <span className="result-logo-fallback">{fallbackEmoji}</span>
                           )}
                         </div>
-                        <h1>당신의 Bio-MBTI 결과: {result.typeCode}</h1>
+                        <h1>{isSharedPage ? '친구의' : '당신의'} Bio-MBTI 결과: {result.typeCode}</h1>
                       </div>
         </div>
 
@@ -473,7 +517,16 @@ function Result({ result, onRestart }) {
               {typeInfo.creator || 'K-BioX'}님이 제작한 씰이에요!
             </p>
           </div>
-          <h2 className="type-title">{result.title || `당신의 Bio-MBTI 결과: ${result.typeCode}`}</h2>
+          {isSharedPage ? (
+            <h2 className="type-title" style={{ textAlign: 'center', lineHeight: '1.6' }}>
+              🎯 나도 테스트해보고 싶다면?<br />
+              <span style={{ fontSize: '0.9em', fontWeight: 'normal', color: '#666' }}>
+                아래 버튼을 눌러 나만의 Bio-MBTI 결과를 확인해보세요!
+              </span>
+            </h2>
+          ) : (
+            <h2 className="type-title">{result.title || `당신의 Bio-MBTI 결과: ${result.typeCode}`}</h2>
+          )}
           <div className="type-keywords">
             {keywords.map((keyword, index) => (
               <span key={index} className="keyword-tag">{keyword}</span>
@@ -523,7 +576,7 @@ function Result({ result, onRestart }) {
             💬 카카오톡 공유
           </button>
           <button className="restart-button" onClick={onRestart}>
-            다시 테스트하기
+            {isSharedPage ? '테스트하기' : '다시 테스트하기'}
           </button>
         </div>
       </div>
