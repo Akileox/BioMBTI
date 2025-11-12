@@ -21,19 +21,12 @@ function Survey({ onComplete }) {
     fetch('/data/questions.json')
       .then(res => res.json())
       .then(data => {
-        // 축별로 질문 분류
-        const questionsByAxis = {
-          'E/I': [],
-          'A/C': [],
-          'G/L': [],
-          'H/R': []
-        };
+        // id 기준으로 정렬
+        const sortedData = [...data].sort((a, b) => a.id - b.id);
         
-        data.forEach(question => {
-          if (question.axis && questionsByAxis[question.axis]) {
-            questionsByAxis[question.axis].push(question);
-          }
-        });
+        // 전체 질문 수
+        const totalQuestions = sortedData.length;
+        const sectionSize = Math.floor(totalQuestions / 4); // 각 섹션 크기 (120개면 30개씩)
         
         // Fisher-Yates shuffle 함수
         const shuffle = (array) => {
@@ -45,18 +38,20 @@ function Survey({ onComplete }) {
           return shuffled;
         };
         
-        // 각 축에서 3개씩 랜덤 선택
+        // 4개 섹션으로 나누어 각 섹션에서 3개씩 랜덤 선택
         const selectedQuestions = [];
-        const axes = ['E/I', 'A/C', 'G/L', 'H/R'];
         
-        axes.forEach(axis => {
-          const axisQuestions = questionsByAxis[axis];
-          if (axisQuestions.length > 0) {
-            const shuffled = shuffle(axisQuestions);
+        for (let i = 0; i < 4; i++) {
+          const startIdx = i * sectionSize;
+          const endIdx = (i === 3) ? totalQuestions : (i + 1) * sectionSize; // 마지막 섹션은 나머지 모두 포함
+          const section = sortedData.slice(startIdx, endIdx);
+          
+          if (section.length > 0) {
+            const shuffled = shuffle(section);
             const selected = shuffled.slice(0, Math.min(3, shuffled.length));
             selectedQuestions.push(...selected);
           }
-        });
+        }
         
         // 최종 선택된 질문들을 다시 섞어서 순서를 랜덤화
         const finalQuestions = shuffle(selectedQuestions);

@@ -18,6 +18,11 @@ const typeData = {
     keywords: ['#ECLR', '#바다코끼리', '#무리생활', '#신중함', '#이성적'],
     creator: '@Raul'
   },
+  'ECLH': {
+    image: '/images/types/ECLH.jpg',
+    keywords: ['#ECLH', '#나르왈', '#일각고래', '#공동체', '#감성적'],
+    creator: '@Blue'
+  },
   'ECGR': {
     image: '/images/types/ECGR.png',
     keywords: ['#ECGR', '#북극순록', '#무리생활', '#효율적'],
@@ -47,6 +52,16 @@ const typeData = {
     image: '/images/types/IAGR.png',
     keywords: ['#IAGR', '#북극기러기', '#이동', '#행동가', '#효율적'],
     creator: '허인영'
+  },
+  'IALH': {
+    image: '/images/types/IALH.png',
+    keywords: ['#IALH', '#북극토끼', '#홀로', '#적극적', '#지역적'],
+    creator: '@강세현'
+  },
+  'IAGH': {
+    image: '/images/types/IAGH.jpg',
+    keywords: ['#IAGH', '#향유고래', '#외로운', '#사냥꾼', '#심해'],
+    creator: '@Ravel'
   },
   'EALR': {
     image: '/images/types/EALR.png',
