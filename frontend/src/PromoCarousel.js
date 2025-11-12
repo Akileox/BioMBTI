@@ -12,7 +12,7 @@ const carouselItems = [
   },
   {
     id: 3,
-    imageUrl: '/images/teamgemini_photo.jpg'
+    imageUrl: '/images/X-mas_seal.png'
   }
 ];
 
