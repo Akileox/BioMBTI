@@ -81,7 +81,7 @@ const typeData = {
   'ECGH': {
     image: '/images/types/ECGH.png',
     keywords: ['#ECGH', '#대서양퍼핀', '#군집', '#전략가', '#감성적'],
-    creator: 'K-BioX'
+    creator: '@이승민_K-BioX AI BioX_1185'
   },
   // 다른 타입들도 여기에 추가 가능
   // 예시:
