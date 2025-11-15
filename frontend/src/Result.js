@@ -73,6 +73,16 @@ const typeData = {
     keywords: ['#EALH', '#사향소', '#공동체', '#방어', '#유대'],
     creator: '@Hee'
   },
+  'ICLH': {
+    image: '/images/types/ICLH.png',
+    keywords: ['#ICLH', '#북극땅다람쥐', '#신중함', '#감성적', '#사색가'],
+    creator: '@Belle'
+  },
+  'ECGH': {
+    image: '/images/types/ECGH.png',
+    keywords: ['#ECGH', '#대서양퍼핀', '#군집', '#전략가', '#감성적'],
+    creator: 'K-BioX'
+  },
   // 다른 타입들도 여기에 추가 가능
   // 예시:
   // 'ICLG': {

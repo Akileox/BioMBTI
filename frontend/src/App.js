@@ -21,7 +21,7 @@ function App() {
     const typeImageMap = {
       'ICLR': '/images/types/ICLR.png',
       'ICGR': '/images/types/ICGR.png',
-      'ICLH': '/images/types/ICLR.png',
+      'ICLH': '/images/types/ICLH.png',
       'ICGH': '/images/types/ICGH.jpg',
       'IALR': '/images/types/IALR.jpg',
       'IAGR': '/images/types/IAGR.png',
@@ -29,7 +29,7 @@ function App() {
       'IAGH': '/images/types/IAGH.jpg',
       'ECLR': '/images/types/ECLR.png',
       'ECLH': '/images/types/ECLH.jpg',
-      'ECGH': '/images/types/ICLR.png',
+      'ECGH': '/images/types/ECGH.png',
       'ECGR': '/images/types/ECGR.png',
       'EALR': '/images/types/EALR.png',
       'EALH': '/images/types/EALH.jpg',
